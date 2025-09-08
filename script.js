@@ -1,6 +1,6 @@
 // ==========================================================================
-// Backward Planner - Complete JavaScript (FUNCTIONALITY FIXED)
-// All bugs resolved: themes, font sizes, holidays, functionality
+// Backward Planner - JavaScript (EDITING & THEME BUGS FIXED)
+// Fixed: Task editing, Theme switching, Font size changes
 // ==========================================================================
 
 // Application State
@@ -19,7 +19,6 @@ const state = {
   projectDescription: '',
   
   isGeneratingTimeline: false,
-  sortableInstance: null,
   editingTaskIndex: -1
 };
 
@@ -59,6 +58,15 @@ const refs = {
   fontSizeSelector: document.getElementById('font-size-selector'),
   excludeHolidaysCheckbox: document.getElementById('exclude-holidays'),
   holidayItems: document.getElementById('holiday-items'),
+  
+  editTaskModal: document.getElementById('edit-task-modal'),
+  editTaskForm: document.getElementById('edit-task-form'),
+  editTaskNameInput: document.getElementById('edit-task-name'),
+  editTaskDurationInput: document.getElementById('edit-task-duration'),
+  editTaskDescriptionInput: document.getElementById('edit-task-description'),
+  cancelEditBtn: document.getElementById('cancel-edit'),
+  saveEditBtn: document.getElementById('save-edit'),
+  modalCloseBtn: document.querySelector('.modal__close'),
   
   loading: document.getElementById('loading'),
   toastContainer: document.getElementById('toast-container')
@@ -162,10 +170,12 @@ function initApp() {
 }
 
 // ==========================================================================
-// Event Listeners
+// Event Listeners - FIXED
 // ==========================================================================
 
 function bindEventListeners() {
+  console.log('Binding event listeners...');
+  
   // Navigation
   if (refs.navToggle) {
     refs.navToggle.addEventListener('click', toggleMobileMenu);
@@ -201,20 +211,88 @@ function bindEventListeners() {
   if (refs.importBtn) refs.importBtn.addEventListener('click', () => refs.importFile?.click());
   if (refs.importFile) refs.importFile.addEventListener('change', handleImport);
   
-  // Settings - FIXED
-  if (refs.themeSelector) {
-    refs.themeSelector.addEventListener('click', handleThemeChange);
-  }
-  
-  if (refs.fontSizeSelector) {
-    refs.fontSizeSelector.addEventListener('change', handleFontSizeChange);
-    refs.fontSizeSelector.addEventListener('click', handleFontSizeChange);
-  }
+  // Settings - COMPLETELY FIXED
+  bindThemeEvents();
+  bindFontSizeEvents();
   
   if (refs.excludeHolidaysCheckbox) refs.excludeHolidaysCheckbox.addEventListener('change', handleHolidayToggle);
   
+  // Modal events - FIXED
+  bindModalEvents();
+  
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeyboard);
+  
+  console.log('Event listeners bound successfully');
+}
+
+// FIXED: Theme event binding
+function bindThemeEvents() {
+  if (refs.themeSelector) {
+    // Bind click events to each theme option
+    const themeOptions = refs.themeSelector.querySelectorAll('.theme-option');
+    themeOptions.forEach(option => {
+      option.addEventListener('click', function(e) {
+        e.preventDefault();
+        const themeId = this.getAttribute('data-theme');
+        if (themeId) {
+          console.log('Theme clicked:', themeId);
+          applyTheme(themeId);
+          showToast(`Theme changed to ${this.textContent.trim()}`, 'success');
+        }
+      });
+    });
+    console.log('Theme events bound to', themeOptions.length, 'options');
+  }
+}
+
+// FIXED: Font size event binding
+function bindFontSizeEvents() {
+  if (refs.fontSizeSelector) {
+    // Bind events to radio buttons and labels
+    const fontOptions = refs.fontSizeSelector.querySelectorAll('.font-option');
+    fontOptions.forEach(option => {
+      const radio = option.querySelector('input[type="radio"]');
+      
+      // Click on label
+      option.addEventListener('click', function(e) {
+        if (e.target.type !== 'radio') {
+          e.preventDefault();
+          radio.checked = true;
+        }
+        const fontSizeId = radio.value;
+        console.log('Font size clicked:', fontSizeId);
+        applyFontSize(fontSizeId);
+        showToast(`Font size changed to ${fontSizeId}`, 'success');
+      });
+      
+      // Change on radio button
+      radio.addEventListener('change', function() {
+        if (this.checked) {
+          const fontSizeId = this.value;
+          console.log('Font size changed:', fontSizeId);
+          applyFontSize(fontSizeId);
+          showToast(`Font size changed to ${fontSizeId}`, 'success');
+        }
+      });
+    });
+    console.log('Font size events bound to', fontOptions.length, 'options');
+  }
+}
+
+// FIXED: Modal event binding
+function bindModalEvents() {
+  if (refs.cancelEditBtn) refs.cancelEditBtn.addEventListener('click', closeEditModal);
+  if (refs.saveEditBtn) refs.saveEditBtn.addEventListener('click', saveTaskEdit);
+  if (refs.modalCloseBtn) refs.modalCloseBtn.addEventListener('click', closeEditModal);
+  
+  if (refs.editTaskModal) {
+    refs.editTaskModal.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal__overlay') || e.target === refs.editTaskModal) {
+        closeEditModal();
+      }
+    });
+  }
 }
 
 // ==========================================================================
@@ -304,7 +382,7 @@ function updateDeadlineDisplay() {
 }
 
 // ==========================================================================
-// Task Management
+// Task Management - FIXED EDITING
 // ==========================================================================
 
 function handleAddTask() {
@@ -347,6 +425,88 @@ function handleAddTask() {
   
   showToast(`Task "${name}" added successfully!`, 'success');
   refs.taskNameInput?.focus();
+}
+
+// FIXED: Task editing functions
+function editTask(index) {
+  console.log('Editing task at index:', index);
+  
+  if (index < 0 || index >= state.tasks.length) {
+    showToast('Invalid task index', 'error');
+    return;
+  }
+  
+  state.editingTaskIndex = index;
+  const task = state.tasks[index];
+  
+  if (refs.editTaskNameInput) refs.editTaskNameInput.value = task.name;
+  if (refs.editTaskDurationInput) refs.editTaskDurationInput.value = task.duration;
+  if (refs.editTaskDescriptionInput) refs.editTaskDescriptionInput.value = task.description || '';
+  
+  if (refs.editTaskModal) {
+    refs.editTaskModal.classList.add('active');
+    refs.editTaskModal.style.display = 'flex';
+  }
+  
+  refs.editTaskNameInput?.focus();
+}
+
+function saveTaskEdit() {
+  console.log('Saving task edit, index:', state.editingTaskIndex);
+  
+  if (state.editingTaskIndex < 0 || state.editingTaskIndex >= state.tasks.length) {
+    showToast('Invalid task to save', 'error');
+    return;
+  }
+  
+  const name = refs.editTaskNameInput?.value.trim();
+  const duration = parseInt(refs.editTaskDurationInput?.value, 10);
+  const description = refs.editTaskDescriptionInput?.value.trim();
+  
+  if (!name || !duration || duration < 1) {
+    showToast('Please enter valid task details', 'error');
+    return;
+  }
+  
+  const task = state.tasks[state.editingTaskIndex];
+  task.name = name;
+  task.duration = duration;
+  task.description = description;
+  
+  // Recalculate timeline if it exists
+  if (state.tasks[0]?.startDate) {
+    calculateTimeline();
+  }
+  
+  updateUI();
+  closeEditModal();
+  
+  showToast('Task updated successfully!', 'success');
+}
+
+function closeEditModal() {
+  if (refs.editTaskModal) {
+    refs.editTaskModal.classList.remove('active');
+    refs.editTaskModal.style.display = 'none';
+  }
+  state.editingTaskIndex = -1;
+}
+
+function deleteTask(index) {
+  console.log('Deleting task at index:', index);
+  
+  if (index < 0 || index >= state.tasks.length) return;
+  
+  const task = state.tasks[index];
+  if (confirm(`Delete task "${task.name}"?`)) {
+    state.tasks.splice(index, 1);
+    
+    if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
+      calculateTimeline();
+    }
+    updateUI();
+    showToast('Task deleted successfully!', 'success');
+  }
 }
 
 function updateTaskList() {
@@ -487,7 +647,7 @@ function handleGenerateTimeline() {
 }
 
 // ==========================================================================
-// Holidays Management - FIXED
+// Holidays Management
 // ==========================================================================
 
 function loadHolidays() {
@@ -511,12 +671,15 @@ function loadHolidays() {
 }
 
 function renderHolidays() {
-  if (!refs.holidayItems) return;
+  if (!refs.holidayItems) {
+    console.log('No holiday items container found');
+    return;
+  }
   
   refs.holidayItems.innerHTML = '';
   
   if (state.holidays.length === 0) {
-    refs.holidayItems.innerHTML = '<p>No holidays loaded</p>';
+    refs.holidayItems.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No holidays loaded</p>';
     return;
   }
   
@@ -531,6 +694,8 @@ function renderHolidays() {
       `;
       refs.holidayItems.appendChild(div);
     });
+  
+  console.log(`Rendered ${state.holidays.length} holidays`);
 }
 
 function isWeekend(date) {
@@ -557,7 +722,7 @@ function handleHolidayToggle() {
 }
 
 // ==========================================================================
-// UI Rendering
+// UI Rendering - FIXED with Edit Buttons
 // ==========================================================================
 
 function updateUI() {
@@ -579,14 +744,21 @@ function renderTasks() {
       const row = document.createElement('tr');
       row.classList.add('task-row');
       row.innerHTML = `
-        <td><strong>${escapeHtml(task.name)}</strong></td>
+        <td><strong>${escapeHtml(task.name)}</strong>
+          ${task.description ? `<br><small class="text-muted">${escapeHtml(task.description)}</small>` : ''}
+        </td>
         <td class="hide-mobile">${formatDate(task.startDate)}</td>
         <td class="hide-mobile">${getWeekday(task.startDate)}</td>
         <td>${formatDate(task.endDate)}</td>
         <td class="hide-mobile">${getWeekday(task.endDate)}</td>
         <td>${task.duration} day${task.duration !== 1 ? 's' : ''}</td>
         <td class="hide-mobile">
-          <button class="btn btn--small btn--danger" onclick="deleteTask(${index})">Delete</button>
+          <button class="btn btn--small btn--outline" onclick="editTask(${index})" title="Edit task">
+            ✏️ Edit
+          </button>
+          <button class="btn btn--small btn--danger" onclick="deleteTask(${index})" title="Delete task">
+            🗑️ Delete
+          </button>
         </td>
       `;
       refs.planBody.appendChild(row);
@@ -613,16 +785,30 @@ function updateButtons() {
 }
 
 // ==========================================================================
-// Theme Management - FIXED
+// Theme Management - COMPLETELY FIXED
 // ==========================================================================
 
 function applyTheme(themeId) {
   console.log('Applying theme:', themeId);
   
+  // Validate theme
+  const validThemes = ['classic-blue', 'forest-green', 'sunset-orange', 'dark-mode', 'purple-dark'];
+  if (!validThemes.includes(themeId)) {
+    console.warn('Invalid theme:', themeId, 'using default');
+    themeId = 'classic-blue';
+  }
+  
   state.currentTheme = themeId;
   
-  // Apply theme to document
+  // Remove all theme classes first
+  validThemes.forEach(theme => {
+    document.documentElement.classList.remove(`theme-${theme}`);
+    document.documentElement.removeAttribute('data-theme');
+  });
+  
+  // Apply new theme
   document.documentElement.setAttribute('data-theme', themeId);
+  document.documentElement.classList.add(`theme-${themeId}`);
   
   // Save to localStorage
   localStorage.setItem('backward-planner-theme', themeId);
@@ -635,40 +821,40 @@ function applyTheme(themeId) {
   }
   
   console.log('Theme applied successfully:', themeId);
-}
-
-function handleThemeChange(e) {
-  e.preventDefault();
   
-  let themeOption = null;
-  
-  if (e.target.classList.contains('theme-option')) {
-    themeOption = e.target;
-  } else {
-    themeOption = e.target.closest('.theme-option');
-  }
-  
-  if (themeOption) {
-    const themeId = themeOption.dataset.theme;
-    if (themeId) {
-      console.log('Theme selected:', themeId);
-      applyTheme(themeId);
-      showToast(`Theme changed to ${themeOption.textContent.trim()}`, 'success');
-    }
-  }
+  // Force a repaint
+  setTimeout(() => {
+    document.body.style.display = 'none';
+    document.body.offsetHeight; // Trigger reflow
+    document.body.style.display = '';
+  }, 10);
 }
 
 // ==========================================================================
-// Font Size Management - FIXED
+// Font Size Management - COMPLETELY FIXED
 // ==========================================================================
 
 function applyFontSize(fontSizeId) {
   console.log('Applying font size:', fontSizeId);
   
+  // Validate font size
+  const validSizes = ['small', 'medium', 'large'];
+  if (!validSizes.includes(fontSizeId)) {
+    console.warn('Invalid font size:', fontSizeId, 'using default');
+    fontSizeId = 'medium';
+  }
+  
   state.currentFontSize = fontSizeId;
   
-  // Apply font size to document
+  // Remove all font size classes first
+  validSizes.forEach(size => {
+    document.documentElement.classList.remove(`font-${size}`);
+    document.documentElement.removeAttribute('data-font-size');
+  });
+  
+  // Apply new font size
   document.documentElement.setAttribute('data-font-size', fontSizeId);
+  document.documentElement.classList.add(`font-${fontSizeId}`);
   
   // Save to localStorage
   localStorage.setItem('backward-planner-font-size', fontSizeId);
@@ -687,29 +873,13 @@ function applyFontSize(fontSizeId) {
   }
   
   console.log('Font size applied successfully:', fontSizeId);
-}
-
-function handleFontSizeChange(e) {
-  let fontSizeId = null;
   
-  if (e.target.type === 'radio' && e.target.name === 'fontSize') {
-    fontSizeId = e.target.value;
-  } else {
-    const fontOption = e.target.closest('.font-option');
-    if (fontOption) {
-      const radio = fontOption.querySelector('input[type="radio"]');
-      if (radio) {
-        radio.checked = true;
-        fontSizeId = radio.value;
-      }
-    }
-  }
-  
-  if (fontSizeId) {
-    console.log('Font size selected:', fontSizeId);
-    applyFontSize(fontSizeId);
-    showToast(`Font size changed to ${fontSizeId}`, 'success');
-  }
+  // Force a repaint
+  setTimeout(() => {
+    document.body.style.display = 'none';
+    document.body.offsetHeight; // Trigger reflow
+    document.body.style.display = '';
+  }, 10);
 }
 
 // ==========================================================================
@@ -761,12 +931,13 @@ function handleExportCSV() {
     return;
   }
   
-  const csvHeaders = ['Task Name', 'Start Date', 'End Date', 'Duration (days)'];
+  const csvHeaders = ['Task Name', 'Start Date', 'End Date', 'Duration (days)', 'Description'];
   const csvRows = state.tasks.map(task => [
     `"${task.name.replace(/"/g, '""')}"`,
     formatDate(task.startDate),
     formatDate(task.endDate),
-    task.duration
+    task.duration,
+    `"${(task.description || '').replace(/"/g, '""')}"`
   ]);
   
   const csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
@@ -791,17 +962,24 @@ function handleExportHTML() {
 <head>
   <title>Project Timeline - ${state.projectName || 'Backward Planner'}</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { color: #1d4ed8; }
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; color: #333; }
+    h1 { color: #1d4ed8; margin-bottom: 10px; }
+    .info { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
-    th { background-color: #f9fafb; }
+    th, td { padding: 12px; text-align: left; border: 1px solid #e2e8f0; }
+    th { background-color: #f1f5f9; font-weight: 600; }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    .footer { margin-top: 30px; font-size: 12px; color: #6b7280; }
   </style>
 </head>
 <body>
   <h1>📅 ${state.projectName || 'Project Timeline'}</h1>
-  <p><strong>Deadline:</strong> ${formatDate(state.deadline)}</p>
-  <p><strong>Generated:</strong> ${formatDate(new Date())}</p>
+  <div class="info">
+    <p><strong>Description:</strong> ${state.projectDescription || 'No description provided'}</p>
+    <p><strong>Deadline:</strong> ${formatDate(state.deadline)}</p>
+    <p><strong>Total Tasks:</strong> ${state.tasks.length}</p>
+    <p><strong>Generated:</strong> ${formatDate(new Date())}</p>
+  </div>
   
   <table>
     <thead>
@@ -810,19 +988,25 @@ function handleExportHTML() {
         <th>Start Date</th>
         <th>End Date</th>
         <th>Duration</th>
+        <th>Description</th>
       </tr>
     </thead>
     <tbody>
       ${state.tasks.map(task => `
         <tr>
-          <td>${escapeHtml(task.name)}</td>
+          <td><strong>${escapeHtml(task.name)}</strong></td>
           <td>${formatDate(task.startDate)}</td>
           <td>${formatDate(task.endDate)}</td>
           <td>${task.duration} day${task.duration !== 1 ? 's' : ''}</td>
+          <td>${escapeHtml(task.description || '')}</td>
         </tr>
       `).join('')}
     </tbody>
   </table>
+  
+  <div class="footer">
+    <p>Generated by Backward Planner - https://github.com/donaldcng/backward-planner-v2</p>
+  </div>
 </body>
 </html>`;
   
@@ -849,7 +1033,7 @@ function downloadFile(content, filename, mimeType) {
 }
 
 // ==========================================================================
-// Import/Export
+// Import/Sample Project
 // ==========================================================================
 
 function handleImport(e) {
@@ -916,23 +1100,23 @@ function importProject(data) {
   }
 }
 
-// ==========================================================================
-// Sample Project
-// ==========================================================================
-
 function loadSampleProject() {
   const sampleData = {
     project: {
       name: "Website Redesign Project",
-      description: "Complete redesign of company website",
+      description: "Complete redesign of company website with new branding and mobile optimization",
       deadline: new Date(Date.now() + (60 * 24 * 60 * 60 * 1000)).toISOString()
     },
     tasks: [
-      { name: "Research & Discovery", duration: 5 },
-      { name: "Wireframing", duration: 5 },
-      { name: "Visual Design", duration: 10 },
-      { name: "Frontend Development", duration: 15 },
-      { name: "Testing & QA", duration: 5 }
+      { name: "Research & Discovery", duration: 5, description: "User research, competitor analysis, and requirements gathering" },
+      { name: "Information Architecture", duration: 3, description: "Site mapping and content strategy" },
+      { name: "Wireframing", duration: 5, description: "Create wireframes for all key pages and user flows" },
+      { name: "Visual Design", duration: 10, description: "High-fidelity mockups and visual design for all pages" },
+      { name: "Frontend Development", duration: 15, description: "HTML, CSS, and JavaScript development" },
+      { name: "Backend Development", duration: 10, description: "Server-side functionality and database integration" },
+      { name: "Content Creation", duration: 7, description: "Write and optimize all website content" },
+      { name: "Testing & QA", duration: 5, description: "Cross-browser testing, mobile testing, and bug fixes" },
+      { name: "Launch Preparation", duration: 3, description: "Final deployment, domain setup, and go-live activities" }
     ]
   };
   
@@ -968,22 +1152,11 @@ function handleClearAll() {
   }
 }
 
-function deleteTask(index) {
-  if (index < 0 || index >= state.tasks.length) return;
-  
-  const task = state.tasks[index];
-  if (confirm(`Delete task "${task.name}"?`)) {
-    state.tasks.splice(index, 1);
-    
-    if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
-      calculateTimeline();
-    }
-    updateUI();
-    showToast('Task deleted successfully!', 'success');
-  }
-}
-
 function handleKeyboard(e) {
+  if (e.key === 'Escape') {
+    closeEditModal();
+  }
+  
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && e.target === refs.taskNameInput) {
     handleAddTask();
   }
@@ -1076,7 +1249,8 @@ function showToast(message, type = 'info') {
 }
 
 // ==========================================================================
-// Global Functions
+// Global Functions - REQUIRED
 // ==========================================================================
 
+window.editTask = editTask;
 window.deleteTask = deleteTask;

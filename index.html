@@ -323,6 +323,7 @@
                         <ul style="margin-left: 1.5rem;">
                             <li style="margin-bottom: 0.5rem;">📅 <strong>Smart Timeline Calculation</strong> - Automatic backward scheduling</li>
                             <li style="margin-bottom: 0.5rem;">🏖️ <strong>Holiday Integration</strong> - Hong Kong public holidays (2024-2027)</li>
+                            <li style="margin-bottom: 0.5rem;">✏️ <strong>Task Editing</strong> - Edit task names, durations, and descriptions</li>
                             <li style="margin-bottom: 0.5rem;">🎨 <strong>5 Beautiful Themes</strong> - Light and dark options</li>
                             <li style="margin-bottom: 0.5rem;">📱 <strong>Edge Sidebar Compatible</strong> - Optimized for Microsoft Edge</li>
                             <li style="margin-bottom: 0.5rem;">📊 <strong>Multiple Export Formats</strong> - JSON, CSV, and HTML</li>
@@ -336,7 +337,7 @@
                         <h3>ℹ️ About This Version</h3>
                     </div>
                     <div class="card__content">
-                        <p><strong>Version:</strong> 2.1.1 - All Bugs Fixed Edition</p>
+                        <p><strong>Version:</strong> 2.1.2 - Task Editing & Theme Fixes</p>
                         <p><strong>Last Updated:</strong> September 2025</p>
                         <p><strong>License:</strong> MIT License</p>
                         <p><strong>Repository:</strong> <a href="https://github.com/donaldcng/backward-planner-v2" target="_blank" style="color: var(--primary);">GitHub</a></p>
@@ -348,6 +349,37 @@
 
     <!-- Hidden file input -->
     <input type="file" id="import-file" accept=".json" style="display: none;">
+
+    <!-- Task Edit Modal - ADDED -->
+    <div class="modal" id="edit-task-modal">
+        <div class="modal__overlay"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3>Edit Task</h3>
+                <button class="modal__close" type="button">&times;</button>
+            </div>
+            <div class="modal__body">
+                <form id="edit-task-form">
+                    <div class="form-group">
+                        <label for="edit-task-name">Task Name</label>
+                        <input type="text" id="edit-task-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-task-duration">Duration (days)</label>
+                        <input type="number" id="edit-task-duration" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-task-description">Description (Optional)</label>
+                        <textarea id="edit-task-description" rows="3" placeholder="Add task description"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--outline" id="cancel-edit" type="button">Cancel</button>
+                <button class="btn btn--primary" id="save-edit" type="button">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Loading -->
     <div class="loading" id="loading" style="display: none;">
