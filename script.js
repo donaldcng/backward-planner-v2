@@ -1,5 +1,5 @@
 // ==========================================================================
-// Enhanced Backward Planner - Complete JavaScript Application
+// Enhanced Backward Planner - Complete JavaScript Application (Bug Fixes)
 // Preserves all original functionality while adding new enhancements
 // ==========================================================================
 
@@ -85,10 +85,11 @@ const refs = {
   toastContainer: document.getElementById('toast-container')
 };
 
-// Hong Kong Holidays Data (preserved from original)
+// Hong Kong Holidays Data - Updated for 2024-2027 range
 const holidaysData = {
   "vcalendar": [{
     "vevent": [
+      // 2024 Holidays
       {"dtstart": ["20240101"], "summary": "New Year's Day"},
       {"dtstart": ["20240210"], "summary": "Lunar New Year's Day"},
       {"dtstart": ["20240212"], "summary": "The third day of Lunar New Year"},
@@ -106,6 +107,8 @@ const holidaysData = {
       {"dtstart": ["20241011"], "summary": "Chung Yeung Festival"},
       {"dtstart": ["20241225"], "summary": "Christmas Day"},
       {"dtstart": ["20241226"], "summary": "The first weekday after Christmas Day"},
+      
+      // 2025 Holidays
       {"dtstart": ["20250101"], "summary": "New Year's Day"},
       {"dtstart": ["20250129"], "summary": "Lunar New Year's Day"},
       {"dtstart": ["20250130"], "summary": "The second day of Lunar New Year"},
@@ -122,7 +125,44 @@ const holidaysData = {
       {"dtstart": ["20251007"], "summary": "The day following the Chinese Mid-Autumn Festival"},
       {"dtstart": ["20251029"], "summary": "Chung Yeung Festival"},
       {"dtstart": ["20251225"], "summary": "Christmas Day"},
-      {"dtstart": ["20251226"], "summary": "The first weekday after Christmas Day"}
+      {"dtstart": ["20251226"], "summary": "The first weekday after Christmas Day"},
+      
+      // 2026 Holidays
+      {"dtstart": ["20260101"], "summary": "New Year's Day"},
+      {"dtstart": ["20260217"], "summary": "Lunar New Year's Day"},
+      {"dtstart": ["20260218"], "summary": "The second day of Lunar New Year"},
+      {"dtstart": ["20260219"], "summary": "The third day of Lunar New Year"},
+      {"dtstart": ["20260403"], "summary": "Good Friday"},
+      {"dtstart": ["20260404"], "summary": "The day following Good Friday"},
+      {"dtstart": ["20260406"], "summary": "The day following Ching Ming Festival"},
+      {"dtstart": ["20260407"], "summary": "The day following Easter Monday"},
+      {"dtstart": ["20260501"], "summary": "Labour Day"},
+      {"dtstart": ["20260525"], "summary": "The day following the Birthday of the Buddha"},
+      {"dtstart": ["20260619"], "summary": "Tuen Ng Festival"},
+      {"dtstart": ["20260701"], "summary": "Hong Kong Special Administrative Region Establishment Day"},
+      {"dtstart": ["20260926"], "summary": "The day following the Chinese Mid-Autumn Festival"},
+      {"dtstart": ["20261001"], "summary": "National Day"},
+      {"dtstart": ["20261019"], "summary": "The day following Chung Yeung Festival"},
+      {"dtstart": ["20261225"], "summary": "Christmas Day"},
+      {"dtstart": ["20261226"], "summary": "The first weekday after Christmas Day"},
+      
+      // 2027 Holidays
+      {"dtstart": ["20270101"], "summary": "New Year's Day"},
+      {"dtstart": ["20270206"], "summary": "Lunar New Year's Day"},
+      {"dtstart": ["20270208"], "summary": "The second day of Lunar New Year"},
+      {"dtstart": ["20270209"], "summary": "The third day of Lunar New Year"},
+      {"dtstart": ["20270326"], "summary": "Good Friday"},
+      {"dtstart": ["20270329"], "summary": "Easter Monday"},
+      {"dtstart": ["20270405"], "summary": "Ching Ming Festival"},
+      {"dtstart": ["20270501"], "summary": "Labour Day"},
+      {"dtstart": ["20270513"], "summary": "The Birthday of the Buddha"},
+      {"dtstart": ["20270609"], "summary": "Tuen Ng Festival"},
+      {"dtstart": ["20270701"], "summary": "Hong Kong Special Administrative Region Establishment Day"},
+      {"dtstart": ["20270915"], "summary": "The day following the Chinese Mid-Autumn Festival"},
+      {"dtstart": ["20271001"], "summary": "National Day"},
+      {"dtstart": ["20271007"], "summary": "Chung Yeung Festival"},
+      {"dtstart": ["20271225"], "summary": "Christmas Day"},
+      {"dtstart": ["20271227"], "summary": "The first weekday after Christmas Day"}
     ]
   }]
 };
@@ -134,15 +174,14 @@ const holidaysData = {
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
+  console.log('Initializing Backward Planner v2.0...');
+  
   loadHolidays();
   bindEventListeners();
   applyTheme(state.currentTheme);
   applyFontSize(state.currentFontSize);
   renderHolidays();
   updateUI();
-  
-  // Initialize drag and drop when tasks are present
-  initDragAndDrop();
   
   showToast('Welcome to Backward Planner!', 'info');
 }
@@ -153,46 +192,53 @@ function initApp() {
 
 function bindEventListeners() {
   // Navigation
-  refs.navToggle?.addEventListener('click', toggleMobileMenu);
+  if (refs.navToggle) refs.navToggle.addEventListener('click', toggleMobileMenu);
   refs.navLinks.forEach(link => {
     link.addEventListener('click', handleNavigation);
   });
   
   // Project Setup
-  refs.setDeadlineBtn?.addEventListener('click', handleSetDeadline);
-  refs.projectNameInput?.addEventListener('input', handleProjectNameChange);
-  refs.projectDescriptionInput?.addEventListener('input', handleProjectDescriptionChange);
+  if (refs.setDeadlineBtn) refs.setDeadlineBtn.addEventListener('click', handleSetDeadline);
+  if (refs.projectNameInput) refs.projectNameInput.addEventListener('input', handleProjectNameChange);
+  if (refs.projectDescriptionInput) refs.projectDescriptionInput.addEventListener('input', handleProjectDescriptionChange);
   
   // Tasks
-  refs.addTaskBtn?.addEventListener('click', handleAddTask);
-  refs.taskNameInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleAddTask();
-  });
+  if (refs.addTaskBtn) refs.addTaskBtn.addEventListener('click', handleAddTask);
+  if (refs.taskNameInput) {
+    refs.taskNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleAddTask();
+    });
+  }
   
   // Timeline
-  refs.generateTimelineBtn?.addEventListener('click', handleGenerateTimeline);
-  refs.loadSampleBtn?.addEventListener('click', loadSampleProject);
+  if (refs.generateTimelineBtn) refs.generateTimelineBtn.addEventListener('click', handleGenerateTimeline);
+  if (refs.loadSampleBtn) refs.loadSampleBtn.addEventListener('click', loadSampleProject);
   
   // Actions
-  refs.clearAllBtn?.addEventListener('click', handleClearAll);
-  refs.exportBtn?.addEventListener('click', handleExport);
-  refs.importBtn?.addEventListener('click', () => refs.importFile?.click());
-  refs.importFile?.addEventListener('change', handleImport);
+  if (refs.clearAllBtn) refs.clearAllBtn.addEventListener('click', handleClearAll);
+  if (refs.exportBtn) refs.exportBtn.addEventListener('click', handleExport);
+  if (refs.importBtn) refs.importBtn.addEventListener('click', () => refs.importFile?.click());
+  if (refs.importFile) refs.importFile.addEventListener('change', handleImport);
   
-  // Settings
-  refs.themeSelector?.addEventListener('click', handleThemeChange);
-  refs.fontSizeSelector?.addEventListener('change', handleFontSizeChange);
-  refs.dateFormatSelect?.addEventListener('change', handleDateFormatChange);
-  refs.excludeHolidaysCheckbox?.addEventListener('change', handleHolidayToggle);
-  refs.resetSettingsBtn?.addEventListener('click', resetSettings);
-  refs.saveSettingsBtn?.addEventListener('click', saveSettings);
+  // Settings - Fixed theme and font size event handlers
+  if (refs.themeSelector) refs.themeSelector.addEventListener('click', handleThemeChange);
+  if (refs.fontSizeSelector) {
+    refs.fontSizeSelector.addEventListener('change', handleFontSizeChange);
+    refs.fontSizeSelector.addEventListener('click', handleFontSizeChange);
+  }
+  if (refs.dateFormatSelect) refs.dateFormatSelect.addEventListener('change', handleDateFormatChange);
+  if (refs.excludeHolidaysCheckbox) refs.excludeHolidaysCheckbox.addEventListener('change', handleHolidayToggle);
+  if (refs.resetSettingsBtn) refs.resetSettingsBtn.addEventListener('click', resetSettings);
+  if (refs.saveSettingsBtn) refs.saveSettingsBtn.addEventListener('click', saveSettings);
   
   // Modal
-  refs.cancelEditBtn?.addEventListener('click', closeEditModal);
-  refs.saveEditBtn?.addEventListener('click', saveTaskEdit);
-  refs.editTaskModal?.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal__overlay')) closeEditModal();
-  });
+  if (refs.cancelEditBtn) refs.cancelEditBtn.addEventListener('click', closeEditModal);
+  if (refs.saveEditBtn) refs.saveEditBtn.addEventListener('click', saveTaskEdit);
+  if (refs.editTaskModal) {
+    refs.editTaskModal.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal__overlay')) closeEditModal();
+    });
+  }
   
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeyboard);
@@ -266,7 +312,7 @@ function handleSetDeadline() {
   
   state.deadline = deadline;
   updateDeadlineDisplay();
-  refs.taskSection.style.display = 'block';
+  if (refs.taskSection) refs.taskSection.style.display = 'block';
   showToast('Deadline set successfully!', 'success');
 }
 
@@ -313,13 +359,11 @@ function handleAddTask() {
   });
   
   // Clear inputs
-  refs.taskNameInput.value = '';
-  refs.taskDurationInput.value = '';
+  if (refs.taskNameInput) refs.taskNameInput.value = '';
+  if (refs.taskDurationInput) refs.taskDurationInput.value = '';
   
-  // Calculate timeline and update UI
-  calculateTimeline();
+  // Update UI
   updateUI();
-  
   showToast(`Task "${name}" added successfully!`, 'success');
   refs.taskNameInput?.focus();
 }
@@ -330,9 +374,9 @@ function editTask(index) {
   state.editingTaskIndex = index;
   const task = state.tasks[index];
   
-  refs.editTaskNameInput.value = task.name;
-  refs.editTaskDurationInput.value = task.duration;
-  refs.editTaskDescriptionInput.value = task.description || '';
+  if (refs.editTaskNameInput) refs.editTaskNameInput.value = task.name;
+  if (refs.editTaskDurationInput) refs.editTaskDurationInput.value = task.duration;
+  if (refs.editTaskDescriptionInput) refs.editTaskDescriptionInput.value = task.description || '';
   
   refs.editTaskModal?.classList.add('active');
   refs.editTaskNameInput?.focus();
@@ -381,28 +425,38 @@ function closeEditModal() {
 }
 
 // ==========================================================================
-// Timeline Calculation (Preserved Original Logic)
+// Timeline Calculation (Preserved Original Logic) - FIXED
 // ==========================================================================
 
 function calculateTimeline() {
-  if (!state.deadline || state.tasks.length === 0) return;
+  if (!state.deadline || state.tasks.length === 0) {
+    console.log('Cannot calculate timeline: missing deadline or tasks');
+    return;
+  }
   
-  let currentEndDate = getValidEndDate(state.deadline);
-  
-  // Process tasks in reverse order (backward planning)
-  for (let i = state.tasks.length - 1; i >= 0; i--) {
-    const task = state.tasks[i];
+  try {
+    let currentEndDate = getValidEndDate(state.deadline);
     
-    // Set task end date
-    task.endDate = new Date(currentEndDate);
-    
-    // Calculate start date
-    task.startDate = findStartDate(currentEndDate, task.duration);
-    
-    // Next task ends when current task starts (minus 1 working day)
-    if (i > 0) {
-      currentEndDate = findPreviousWorkingDay(task.startDate);
+    // Process tasks in reverse order (backward planning)
+    for (let i = state.tasks.length - 1; i >= 0; i--) {
+      const task = state.tasks[i];
+      
+      // Set task end date
+      task.endDate = new Date(currentEndDate);
+      
+      // Calculate start date
+      task.startDate = findStartDate(currentEndDate, task.duration);
+      
+      // Next task ends when current task starts (minus 1 working day)
+      if (i > 0) {
+        currentEndDate = findPreviousWorkingDay(task.startDate);
+      }
     }
+    
+    console.log('Timeline calculated successfully');
+  } catch (error) {
+    console.error('Error calculating timeline:', error);
+    showToast('Error calculating timeline', 'error');
   }
 }
 
@@ -449,44 +503,67 @@ function handleGenerateTimeline() {
     return;
   }
   
+  if (state.isGeneratingTimeline) {
+    return; // Prevent multiple clicks
+  }
+  
   state.isGeneratingTimeline = true;
   showLoading('Calculating timeline...');
   
-  // Simulate calculation delay for UX
+  // Use shorter delay to reduce hanging perception
   setTimeout(() => {
-    calculateTimeline();
-    updateUI();
-    hideLoading();
-    state.isGeneratingTimeline = false;
-    showToast('Timeline generated successfully!', 'success');
-    
-    // Initialize drag and drop
-    initDragAndDrop();
-  }, 1000);
+    try {
+      calculateTimeline();
+      updateUI();
+      initDragAndDrop();
+      showToast('Timeline generated successfully!', 'success');
+    } catch (error) {
+      console.error('Timeline generation error:', error);
+      showToast('Error generating timeline', 'error');
+    } finally {
+      hideLoading();
+      state.isGeneratingTimeline = false;
+    }
+  }, 300);
 }
 
 // ==========================================================================
-// Holidays Management (Preserved Original)
+// Holidays Management (Preserved Original) - UPDATED RANGE
 // ==========================================================================
 
 function loadHolidays() {
   const vevents = holidaysData.vcalendar[0].vevent;
-  state.holidays = vevents.map(evt => {
-    const raw = evt.dtstart[0];
-    const d = new Date(
-      parseInt(raw.slice(0, 4)), // year
-      parseInt(raw.slice(4, 6)) - 1, // month (0-based)
-      parseInt(raw.slice(6, 8)) // day
-    );
-    return { 
-      date: normalizeDate(d), 
-      summary: evt.summary 
-    };
-  });
+  const currentYear = new Date().getFullYear(); // 2025
+  const startYear = currentYear - 1; // 2024
+  const endYear = currentYear + 2; // 2027
+  
+  state.holidays = vevents
+    .map(evt => {
+      const raw = evt.dtstart[0];
+      const year = parseInt(raw.slice(0, 4));
+      
+      // Only include holidays from 2024-2027
+      if (year < startYear || year > endYear) {
+        return null;
+      }
+      
+      const d = new Date(
+        year, // year
+        parseInt(raw.slice(4, 6)) - 1, // month (0-based)
+        parseInt(raw.slice(6, 8)) // day
+      );
+      return { 
+        date: normalizeDate(d), 
+        summary: evt.summary 
+      };
+    })
+    .filter(holiday => holiday !== null); // Remove null entries
   
   // Build holiday set for fast lookup
   state.holidaySet.clear();
   state.holidays.forEach(h => state.holidaySet.add(+h.date));
+  
+  console.log(`Loaded ${state.holidays.length} holidays for years ${startYear}-${endYear}`);
 }
 
 function renderHolidays() {
@@ -494,7 +571,6 @@ function renderHolidays() {
   
   refs.holidayItems.innerHTML = '';
   state.holidays
-    .filter(holiday => holiday.date.getFullYear() >= new Date().getFullYear())
     .sort((a, b) => a.date - b.date)
     .forEach(({ date, summary }) => {
       const div = document.createElement('div');
@@ -540,33 +616,37 @@ function initDragAndDrop() {
   }
   
   // Create new sortable instance
-  state.sortableInstance = Sortable.create(refs.planBody, {
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    chosenClass: 'sortable-chosen',
-    dragClass: 'sortable-drag',
-    handle: 'tr',
-    onEnd: function(evt) {
-      // Reorder tasks array to match new DOM order
-      const newTasks = [];
-      const rows = refs.planBody.querySelectorAll('tr');
-      
-      rows.forEach(row => {
-        const taskName = row.cells[0]?.textContent?.trim();
-        const task = state.tasks.find(t => t.name === taskName);
-        if (task) {
-          newTasks.push(task);
+  try {
+    state.sortableInstance = Sortable.create(refs.planBody, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      handle: 'tr',
+      onEnd: function(evt) {
+        // Reorder tasks array to match new DOM order
+        const newTasks = [];
+        const rows = refs.planBody.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          const taskName = row.cells[0]?.textContent?.trim();
+          const task = state.tasks.find(t => t.name === taskName);
+          if (task) {
+            newTasks.push(task);
+          }
+        });
+        
+        if (newTasks.length === state.tasks.length) {
+          state.tasks = newTasks;
+          calculateTimeline();
+          updateUI();
+          showToast('Tasks reordered successfully!', 'success');
         }
-      });
-      
-      if (newTasks.length === state.tasks.length) {
-        state.tasks = newTasks;
-        calculateTimeline();
-        updateUI();
-        showToast('Tasks reordered successfully!', 'success');
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.error('Error initializing drag and drop:', error);
+  }
 }
 
 // ==========================================================================
@@ -581,7 +661,7 @@ function updateUI() {
 function renderTasks() {
   if (!refs.planTable || !refs.planBody || !refs.noTasksMsg) return;
   
-  const hasTasksWithTimeline = state.tasks.length > 0 && state.tasks[0].startDate;
+  const hasTasksWithTimeline = state.tasks.length > 0 && state.tasks[0]?.startDate;
   
   // Show/hide table and empty message
   refs.planTable.style.display = hasTasksWithTimeline ? 'table' : 'none';
@@ -619,7 +699,7 @@ function renderTasks() {
 
 function updateButtons() {
   const hasTasks = state.tasks.length > 0;
-  const hasTimeline = hasTasks && state.tasks[0].startDate;
+  const hasTimeline = hasTasks && state.tasks[0]?.startDate;
   
   if (refs.generateTimelineBtn) {
     refs.generateTimelineBtn.disabled = !hasTasks || state.isGeneratingTimeline;
@@ -637,10 +717,11 @@ function updateButtons() {
 }
 
 // ==========================================================================
-// Theme Management (New Enhancement)
+// Theme Management (New Enhancement) - FIXED
 // ==========================================================================
 
 function applyTheme(themeId) {
+  console.log('Applying theme:', themeId);
   state.currentTheme = themeId;
   document.documentElement.setAttribute('data-theme', themeId);
   localStorage.setItem('backward-planner-theme', themeId);
@@ -651,22 +732,27 @@ function applyTheme(themeId) {
       option.classList.toggle('active', option.dataset.theme === themeId);
     });
   }
+  
+  console.log('Theme applied successfully');
 }
 
 function handleThemeChange(e) {
   const themeOption = e.target.closest('.theme-option');
   if (themeOption) {
     const themeId = themeOption.dataset.theme;
-    applyTheme(themeId);
-    showToast(`Theme changed to ${themeOption.textContent.trim()}`, 'success');
+    if (themeId) {
+      applyTheme(themeId);
+      showToast(`Theme changed to ${themeOption.textContent.trim()}`, 'success');
+    }
   }
 }
 
 // ==========================================================================
-// Font Size Management (New Enhancement)
+// Font Size Management (New Enhancement) - FIXED
 // ==========================================================================
 
 function applyFontSize(fontSizeId) {
+  console.log('Applying font size:', fontSizeId);
   state.currentFontSize = fontSizeId;
   document.documentElement.setAttribute('data-font-size', fontSizeId);
   localStorage.setItem('backward-planner-font-size', fontSizeId);
@@ -676,11 +762,25 @@ function applyFontSize(fontSizeId) {
     const radio = refs.fontSizeSelector.querySelector(`input[value="${fontSizeId}"]`);
     if (radio) radio.checked = true;
   }
+  
+  console.log('Font size applied successfully');
 }
 
 function handleFontSizeChange(e) {
+  // Handle both radio button changes and clicks
+  let fontSizeId = null;
+  
   if (e.target.type === 'radio' && e.target.name === 'fontSize') {
-    const fontSizeId = e.target.value;
+    fontSizeId = e.target.value;
+  } else if (e.target.closest('.font-option')) {
+    const radio = e.target.closest('.font-option').querySelector('input[type="radio"]');
+    if (radio) {
+      radio.checked = true;
+      fontSizeId = radio.value;
+    }
+  }
+  
+  if (fontSizeId) {
     applyFontSize(fontSizeId);
     
     const labels = {
@@ -851,7 +951,7 @@ function importProject(data) {
     if (refs.excludeHolidaysCheckbox) refs.excludeHolidaysCheckbox.checked = state.skipHolidays;
     
     updateDeadlineDisplay();
-    refs.taskSection.style.display = 'block';
+    if (refs.taskSection) refs.taskSection.style.display = 'block';
     calculateTimeline();
     updateUI();
     initDragAndDrop();
@@ -914,7 +1014,7 @@ function handleClearAll() {
     if (refs.deadlineInput) refs.deadlineInput.value = '';
     if (refs.deadlineDisplay) refs.deadlineDisplay.textContent = '';
     
-    refs.taskSection.style.display = 'none';
+    if (refs.taskSection) refs.taskSection.style.display = 'none';
     updateUI();
     
     showToast('All data cleared', 'success');
@@ -987,7 +1087,8 @@ function escapeHtml(text) {
 
 function showLoading(message = 'Loading...') {
   if (refs.loading) {
-    refs.loading.querySelector('p').textContent = message;
+    const loadingText = refs.loading.querySelector('p');
+    if (loadingText) loadingText.textContent = message;
     refs.loading.style.display = 'flex';
   }
 }
@@ -1024,7 +1125,9 @@ function showToast(message, type = 'info') {
   // Auto remove
   setTimeout(() => {
     toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
+    setTimeout(() => {
+      if (toast.parentNode) toast.remove();
+    }, 300);
   }, 4000);
 }
 

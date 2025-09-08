@@ -31,10 +31,6 @@ An advanced web-based backward project planning tool that helps you work from yo
 - **⚡ Fast Loading**: Optimized performance with minimal dependencies
 - **📱 Offline Capable**: Works without internet connection once loaded
 
-## 🚀 Live Demo
-
-**GitHub Pages**: [https://yourusername.github.io/backward-planner/](https://yourusername.github.io/backward-planner/)
-
 ## 🛠 Installation & Setup
 
 ### Quick Start (GitHub Pages)
@@ -146,7 +142,7 @@ An advanced web-based backward project planning tool that helps you work from yo
    - **Large**: Enhanced accessibility
 
 #### Hong Kong Holidays Integration
-- **Automatic holiday detection**: Skips Hong Kong public holidays by default
+- **Automatic holiday detection**: Skips Hong Kong public holidays by default (2024-2027)
 - **Configurable**: Toggle holiday skipping in settings
 - **Up-to-date**: Includes current and future Hong Kong holidays
 - **Smart calculation**: Ensures tasks don't start/end on holidays when enabled
@@ -255,14 +251,6 @@ We welcome contributions! Here's how you can help:
 - **Browser Support**: Test on all major browsers and devices
 - **Documentation**: Update README for any new features or changes
 
-## 📊 Project Statistics
-
-- **Bundle Size**: < 100KB total (HTML + CSS + JS)
-- **Load Time**: < 2 seconds on 3G networks
-- **Lighthouse Score**: 95+ on all metrics (Performance, Accessibility, Best Practices, SEO)
-- **Mobile Friendly**: 100/100 Google mobile-friendly score  
-- **Accessibility**: WCAG 2.1 AA compliant
-
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -319,29 +307,6 @@ This project is licensed under the **MIT License**.
 - **GitHub Issues**: [Report bugs or request features](https://github.com/yourusername/backward-planner/issues)
 - **Documentation**: This README and inline code comments
 - **GitHub Discussions**: Join conversations about features and usage
-
----
-
-## 🔮 Roadmap
-
-### Version 2.1.0 (Coming Soon)
-- [ ] **PDF Export**: Export timelines as formatted PDF documents
-- [ ] **CSV Export**: Export task lists and timelines as spreadsheets
-- [ ] **Project Templates**: Pre-built templates for common project types
-- [ ] **Calendar Integration**: Sync with Google Calendar and Outlook
-
-### Version 2.2.0 (Future)
-- [ ] **Team Collaboration**: Share projects with team members
-- [ ] **Advanced Dependencies**: More complex task relationships and constraints
-- [ ] **Resource Management**: Assign team members and track workloads
-- [ ] **Budget Tracking**: Cost estimation and budget management features
-- [ ] **Mobile Apps**: Native iOS and Android applications
-
-### Version 3.0.0 (Long-term)
-- [ ] **Real-time Collaboration**: Live editing and commenting with team members
-- [ ] **Advanced Analytics**: Project insights and performance metrics
-- [ ] **API Integration**: Connect with project management tools like Jira, Asana
-- [ ] **Advanced Reporting**: Detailed project reports and dashboards
 
 ---
 
