@@ -14,7 +14,7 @@
             <div class="nav__brand">
                 <h1 class="nav__title">📅 Backward Planner</h1>
             </div>
-            <button class="nav__toggle" id="navToggle">
+            <button class="nav__toggle" id="navToggle" title="Toggle navigation menu">
                 <span class="nav__toggle-bar"></span>
                 <span class="nav__toggle-bar"></span>
                 <span class="nav__toggle-bar"></span>
@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Task Management -->
-                <div class="card" id="task-section" style="display: none;">
+                <div class="card hidden" id="task-section">
                     <div class="card__header">
                         <h3>📝 Add Tasks</h3>
                         <p>Add tasks to your project. They will be calculated backward from your deadline.</p>
@@ -110,7 +110,7 @@
                         </div>
                         
                         <div class="table-container">
-                            <table class="plan-table" id="plan-table" style="display: none;">
+                            <table class="plan-table hidden" id="plan-table">
                                 <thead>
                                     <tr>
                                         <th>📋 Task</th>
@@ -243,12 +243,12 @@
                     <div class="card__content">
                         <p>Backward planning is a strategic approach that starts with your project deadline and works backward to determine when each task should begin. This method ensures you meet your deadline while accounting for all necessary work, dependencies, and holidays.</p>
                         
-                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">✨ Key Benefits:</h4>
-                        <ul style="margin-left: 1.5rem;">
-                            <li style="margin-bottom: 0.5rem;"><strong>🎯 Deadline-focused</strong> - Never miss important deadlines</li>
-                            <li style="margin-bottom: 0.5rem;"><strong>📊 Realistic planning</strong> - Account for all necessary tasks</li>
-                            <li style="margin-bottom: 0.5rem;"><strong>👁️ Visual clarity</strong> - See your entire project at a glance</li>
-                            <li style="margin-bottom: 0.5rem;"><strong>🔄 Flexible adjustments</strong> - Easy to modify and adapt</li>
+                        <h4 class="feature-title">✨ Key Benefits:</h4>
+                        <ul class="feature-list">
+                            <li><strong>🎯 Deadline-focused</strong> - Never miss important deadlines</li>
+                            <li><strong>📊 Realistic planning</strong> - Account for all necessary tasks</li>
+                            <li><strong>👁️ Visual clarity</strong> - See your entire project at a glance</li>
+                            <li><strong>🔄 Flexible adjustments</strong> - Easy to modify and adapt</li>
                             <li><strong>💼 Professional output</strong> - Export timeline for stakeholders</li>
                         </ul>
                     </div>
@@ -259,14 +259,14 @@
                         <h3>🚀 Key Features</h3>
                     </div>
                     <div class="card__content">
-                        <ul style="margin-left: 1.5rem;">
-                            <li style="margin-bottom: 0.5rem;">📅 <strong>Smart Timeline Calculation</strong> - Automatic backward scheduling</li>
-                            <li style="margin-bottom: 0.5rem;">🏖️ <strong>Holiday Integration</strong> - Hong Kong public holidays (2024-2027)</li>
-                            <li style="margin-bottom: 0.5rem;">✏️ <strong>Task Editing</strong> - Edit task names, durations, and descriptions</li>
-                            <li style="margin-bottom: 0.5rem;">🎨 <strong>5 Beautiful Themes</strong> - Light and dark options</li>
-                            <li style="margin-bottom: 0.5rem;">📱 <strong>Responsive Design</strong> - Works on all devices</li>
-                            <li style="margin-bottom: 0.5rem;">📊 <strong>Multiple Export Formats</strong> - JSON, CSV, and HTML</li>
-                            <li>⚡ <strong>Fast & Reliable</strong> - Built with modern web technologies</li>
+                        <ul class="feature-list">
+                            <li><strong>📅 Smart Timeline Calculation</strong> - Automatic backward scheduling</li>
+                            <li><strong>🏖️ Holiday Integration</strong> - Hong Kong public holidays (2024-2027)</li>
+                            <li><strong>✏️ Task Editing</strong> - Edit task names, durations, and descriptions</li>
+                            <li><strong>🎨 5 Beautiful Themes</strong> - Light and dark options</li>
+                            <li><strong>📱 Responsive Design</strong> - Works on all devices</li>
+                            <li><strong>📊 Multiple Export Formats</strong> - JSON, CSV, and HTML</li>
+                            <li><strong>⚡ Fast & Reliable</strong> - Built with modern web technologies</li>
                         </ul>
                     </div>
                 </div>
@@ -276,10 +276,10 @@
                         <h3>ℹ️ Version Information</h3>
                     </div>
                     <div class="card__content">
-                        <p><strong>Version:</strong> 2.2.0 - Complete Rewrite</p>
+                        <p><strong>Version:</strong> 2.2.0 - All Issues Fixed</p>
                         <p><strong>Last Updated:</strong> September 2025</p>
                         <p><strong>License:</strong> MIT License</p>
-                        <p><strong>Features:</strong> All bugs fixed, clean codebase, optimized performance</p>
+                        <p><strong>Features:</strong> Zero VS Code warnings, optimized performance</p>
                     </div>
                 </div>
             </div>
@@ -292,7 +292,7 @@
         <div class="modal__content">
             <div class="modal__header">
                 <h3>Edit Task</h3>
-                <button class="modal__close" type="button">&times;</button>
+                <button class="modal__close" type="button" title="Close edit dialog">&times;</button>
             </div>
             <div class="modal__body">
                 <div class="form-group">
@@ -316,10 +316,10 @@
     </div>
 
     <!-- Hidden file input -->
-    <input type="file" id="import-file" accept=".json" style="display: none;">
+    <input type="file" id="import-file" accept=".json" class="hidden">
 
     <!-- Loading -->
-    <div class="loading" id="loading" style="display: none;">
+    <div class="loading hidden" id="loading">
         <div class="loading__spinner"></div>
         <p>Loading...</p>
     </div>
