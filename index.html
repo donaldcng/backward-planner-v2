@@ -50,6 +50,7 @@
                 <div class="card" id="projectSetup">
                     <div class="card__header">
                         <h3>📋 Project Setup</h3>
+                        <p>Set up your project details and deadline to get started</p>
                     </div>
                     <div class="card__content">
                         <div class="form-group">
@@ -61,8 +62,8 @@
                             <input type="date" id="deadline" required>
                         </div>
                         <div class="form-group">
-                            <label for="project-description">Description</label>
-                            <textarea id="project-description" placeholder="Optional: Describe the project goals and scope" rows="3"></textarea>
+                            <label for="project-description">Description (Optional)</label>
+                            <textarea id="project-description" placeholder="Describe the project goals and scope" rows="3"></textarea>
                         </div>
                         <button class="btn btn--primary" id="set-deadline">Set Deadline & Start Planning</button>
                         <div class="deadline-display" id="deadline-display"></div>
@@ -72,7 +73,7 @@
                 <!-- Task Management -->
                 <div class="card" id="task-section" style="display: none;">
                     <div class="card__header">
-                        <h3>📝 Tasks</h3>
+                        <h3>📝 Add Tasks</h3>
                         <p>Add tasks to your project. They will be calculated backward from your deadline.</p>
                     </div>
                     <div class="card__content">
@@ -87,7 +88,7 @@
                                     <input type="number" id="task-duration" min="1" placeholder="5">
                                 </div>
                                 <div class="form-group form-group--button">
-                                    <button class="btn btn--secondary" id="add-task">+ Add Task</button>
+                                    <button class="btn btn--primary" id="add-task">+ Add Task</button>
                                 </div>
                             </div>
                         </div>
@@ -98,14 +99,16 @@
                 <div class="card" id="timeline-section">
                     <div class="card__header">
                         <div class="timeline-header">
-                            <h3>📊 Project Timeline</h3>
+                            <div class="timeline-title">
+                                <h3>📊 Project Timeline</h3>
+                                <p>Tasks are scheduled backward from your deadline. Drag to reorder after generating timeline.</p>
+                            </div>
                             <div class="timeline-actions">
                                 <button class="btn btn--outline" id="clear-all">Clear All</button>
                                 <button class="btn btn--outline" id="import-btn">Import Plan</button>
-                                <button class="btn btn--primary" id="export-btn">Export Plan</button>
+                                <button class="btn btn--secondary" id="export-btn">Export Plan</button>
                             </div>
                         </div>
-                        <p>Tasks are scheduled backward from your deadline. Drag to reorder after generating timeline.</p>
                     </div>
                     <div class="card__content">
                         <div class="timeline-controls">
@@ -255,8 +258,10 @@
                         <p>Restore default settings and preferences</p>
                     </div>
                     <div class="card__content">
-                        <button class="btn btn--danger" id="reset-settings">Reset to Defaults</button>
-                        <button class="btn btn--outline" id="save-settings">Save Settings</button>
+                        <div class="settings-actions">
+                            <button class="btn btn--danger" id="reset-settings">Reset to Defaults</button>
+                            <button class="btn btn--primary" id="save-settings">Save Settings</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -398,7 +403,7 @@
                             <p><strong>Version:</strong> 2.0.0 Enhanced Edition</p>
                             <p><strong>Last Updated:</strong> September 2025</p>
                             <p><strong>License:</strong> MIT License</p>
-                            <p><strong>Repository:</strong> <a href="https://github.com/yourusername/backward-planner" target="_blank" rel="noopener">GitHub</a></p>
+                            <p><strong>Repository:</strong> <a href="https://github.com/donaldcng/backward-planner-v2" target="_blank" rel="noopener">GitHub</a></p>
                         </div>
 
                         <div class="tech-stack">
