@@ -5,51 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📅 Backward Planner</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    
-    <!-- PWA & Edge Sidebar Support -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="32x32" href="icon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-180x180.png">
-    <meta name="theme-color" content="#1d4ed8">
-    <meta name="msapplication-TileColor" content="#1d4ed8">
-    
-    <!-- Edge Sidebar Optimizations -->
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="format-detection" content="telephone=no">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="nav" role="navigation" aria-label="Main navigation">
+    <nav class="nav">
         <div class="nav__container">
             <div class="nav__brand">
                 <h1 class="nav__title">📅 Planner</h1>
             </div>
-            <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+            <button class="nav__toggle" id="navToggle">
                 <span class="nav__toggle-bar"></span>
                 <span class="nav__toggle-bar"></span>
                 <span class="nav__toggle-bar"></span>
             </button>
-            <ul class="nav__menu" id="navMenu" role="menubar">
-                <li class="nav__item" role="none">
-                    <a href="#" class="nav__link nav__link--active" data-page="planning" role="menuitem" aria-current="page">Planning</a>
-                </li>
-                <li class="nav__item" role="none">
-                    <a href="#" class="nav__link" data-page="settings" role="menuitem">Settings</a>
-                </li>
-                <li class="nav__item" role="none">
-                    <a href="#" class="nav__link" data-page="about" role="menuitem">About</a>
-                </li>
+            <ul class="nav__menu" id="navMenu">
+                <li><a href="#" class="nav__link nav__link--active" data-page="planning">Planning</a></li>
+                <li><a href="#" class="nav__link" data-page="settings">Settings</a></li>
+                <li><a href="#" class="nav__link" data-page="about">About</a></li>
             </ul>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="main" role="main">
+    <main class="main">
         <!-- Planning Page -->
         <div class="page page--active" id="planningPage">
             <div class="container">
@@ -59,7 +39,7 @@
                 </div>
 
                 <!-- Project Setup -->
-                <div class="card" id="projectSetup">
+                <div class="card">
                     <div class="card__header">
                         <h3>📋 Project Setup</h3>
                         <p>Set up your project details and deadline to get started</p>
@@ -69,7 +49,7 @@
                             <label for="project-name">Project Name</label>
                             <input type="text" id="project-name" placeholder="Enter your project name">
                         </div>
-                        <div class="form-group form-group--date">
+                        <div class="form-group">
                             <label for="deadline">Project Deadline *</label>
                             <input type="date" id="deadline" required>
                         </div>
@@ -99,7 +79,7 @@
                                     <label for="task-duration">Duration (days)</label>
                                     <input type="number" id="task-duration" min="1" placeholder="5">
                                 </div>
-                                <div class="form-group form-group--button">
+                                <div class="form-group">
                                     <button class="btn btn--primary" id="add-task">+ Add Task</button>
                                 </div>
                             </div>
@@ -107,8 +87,8 @@
                     </div>
                 </div>
 
-                <!-- Project Timeline -->
-                <div class="card" id="timeline-section">
+                <!-- Timeline Section -->
+                <div class="card">
                     <div class="card__header">
                         <div class="timeline-header">
                             <div class="timeline-title">
@@ -174,7 +154,7 @@
                 <div class="card">
                     <div class="card__header">
                         <h3>🎨 Color Theme</h3>
-                        <p>Choose from 3 light themes or 2 dark themes</p>
+                        <p>Choose from multiple themes</p>
                     </div>
                     <div class="card__content">
                         <div class="theme-grid" id="theme-selector">
@@ -202,7 +182,7 @@
                     </div>
                 </div>
 
-                <!-- Font Size Settings -->
+                <!-- Font Size -->
                 <div class="card">
                     <div class="card__header">
                         <h3>🔤 Font Size</h3>
@@ -212,39 +192,21 @@
                         <div class="font-size-options" id="font-size-selector">
                             <label class="font-option">
                                 <input type="radio" name="fontSize" value="small">
-                                <span class="font-option__preview font-option--small">Small (Compact)</span>
+                                <span>Small (Compact)</span>
                             </label>
                             <label class="font-option">
                                 <input type="radio" name="fontSize" value="medium" checked>
-                                <span class="font-option__preview font-option--medium">Medium (Default)</span>
+                                <span>Medium (Default)</span>
                             </label>
                             <label class="font-option">
                                 <input type="radio" name="fontSize" value="large">
-                                <span class="font-option__preview font-option--large">Large (Accessible)</span>
+                                <span>Large (Accessible)</span>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Date Format Settings -->
-                <div class="card">
-                    <div class="card__header">
-                        <h3>📅 Date Format</h3>
-                        <p>Choose how dates are displayed throughout the app</p>
-                    </div>
-                    <div class="card__content">
-                        <div class="form-group">
-                            <label for="date-format">Date Format</label>
-                            <select id="date-format">
-                                <option value="yyyy-MM-dd">YYYY-MM-DD (2024-12-31)</option>
-                                <option value="MM/dd/yyyy">MM/DD/YYYY (12/31/2024)</option>
-                                <option value="dd MMM yyyy">DD MMM YYYY (31 Dec 2024)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Holiday Settings - FIXED DOUBLE CHECKBOX -->
+                <!-- Holiday Settings -->
                 <div class="card">
                     <div class="card__header">
                         <h3>🏖️ Holiday Settings</h3>
@@ -257,26 +219,6 @@
                                 <span class="checkbox-custom"></span>
                                 Skip Hong Kong public holidays in timeline calculations
                             </label>
-                        </div>
-                        <div class="holiday-list">
-                            <h4>📋 Hong Kong Public Holidays (2024-2027)</h4>
-                            <div class="holiday-items" id="holiday-items">
-                                <!-- Holidays will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reset Settings -->
-                <div class="card">
-                    <div class="card__header">
-                        <h3>🔄 Reset Settings</h3>
-                        <p>Restore default settings and preferences</p>
-                    </div>
-                    <div class="card__content">
-                        <div class="settings-actions">
-                            <button class="btn btn--danger" id="reset-settings">Reset to Defaults</button>
-                            <button class="btn btn--primary" id="save-settings">Save Settings</button>
                         </div>
                     </div>
                 </div>
@@ -291,141 +233,31 @@
                     <p>Your intelligent project planning companion</p>
                 </div>
 
-                <!-- What is Backward Planning -->
                 <div class="card">
                     <div class="card__header">
                         <h3>🤔 What is Backward Planning?</h3>
                     </div>
                     <div class="card__content">
-                        <p>Backward planning is a strategic approach that starts with your project deadline and works backward to determine when each task should begin. This method ensures you meet your deadline while accounting for all necessary work, dependencies, and holidays.</p>
-                        
-                        <div class="feature-benefits">
-                            <h4>✨ Key Benefits:</h4>
-                            <ul>
-                                <li><strong>🎯 Deadline-focused</strong> - Never miss important deadlines</li>
-                                <li><strong>📊 Realistic planning</strong> - Account for all necessary tasks</li>
-                                <li><strong>👁️ Visual clarity</strong> - See your entire project at a glance</li>
-                                <li><strong>🔄 Flexible adjustments</strong> - Easy to modify and adapt</li>
-                                <li><strong>💼 Professional output</strong> - Export timeline for stakeholders</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Key Features -->
-                <div class="card">
-                    <div class="card__header">
-                        <h3>🚀 Key Features</h3>
-                    </div>
-                    <div class="card__content">
-                        <div class="feature-grid">
-                            <div class="feature-item">
-                                <div class="feature-icon">📅</div>
-                                <h4>Smart Timeline Calculation</h4>
-                                <p>Automatically calculates start dates working backward from your deadline</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">🏖️</div>
-                                <h4>Holiday Integration</h4>
-                                <p>Automatically skips Hong Kong public holidays (2024-2027) in calculations</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">🔄</div>
-                                <h4>Drag & Drop Reordering</h4>
-                                <p>Easily reorder tasks with touch-friendly drag and drop</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">📱</div>
-                                <h4>Edge Sidebar Compatible</h4>
-                                <p>Optimized for Microsoft Edge sidebar and mobile devices</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">🎨</div>
-                                <h4>5 Beautiful Themes</h4>
-                                <p>3 light themes and 2 dark themes for personalization</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">📊</div>
-                                <h4>Multiple Export Formats</h4>
-                                <p>Export as JSON, CSV, or HTML for different use cases</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Version & Credits -->
-                <div class="card">
-                    <div class="card__header">
-                        <h3>ℹ️ About This Version</h3>
-                    </div>
-                    <div class="card__content">
-                        <div class="about-info">
-                            <p><strong>Version:</strong> 2.1.1 UI/UX Fixed Edition</p>
-                            <p><strong>Last Updated:</strong> September 2025</p>
-                            <p><strong>License:</strong> MIT License</p>
-                            <p><strong>Repository:</strong> <a href="https://github.com/donaldcng/backward-planner-v2" target="_blank" rel="noopener">GitHub</a></p>
-                        </div>
-
-                        <div class="tech-stack">
-                            <h4>🛠️ Built With:</h4>
-                            <div class="tech-tags">
-                                <span class="tech-tag">HTML5</span>
-                                <span class="tech-tag">CSS3</span>
-                                <span class="tech-tag">JavaScript</span>
-                                <span class="tech-tag">SortableJS</span>
-                                <span class="tech-tag">PWA</span>
-                            </div>
-                        </div>
+                        <p>Backward planning is a strategic approach that starts with your project deadline and works backward to determine when each task should begin.</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Hidden File Input for Import -->
+    <!-- Hidden file input -->
     <input type="file" id="import-file" accept=".json" style="display: none;">
 
-    <!-- Task Edit Modal -->
-    <div class="modal" id="edit-task-modal">
-        <div class="modal__overlay"></div>
-        <div class="modal__content">
-            <div class="modal__header">
-                <h3>Edit Task</h3>
-                <button class="modal__close" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="modal__body">
-                <form id="edit-task-form">
-                    <div class="form-group">
-                        <label for="edit-task-name">Task Name</label>
-                        <input type="text" id="edit-task-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-task-duration">Duration (days)</label>
-                        <input type="number" id="edit-task-duration" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-task-description">Description</label>
-                        <textarea id="edit-task-description" rows="3"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal__footer">
-                <button class="btn btn--outline" id="cancel-edit">Cancel</button>
-                <button class="btn btn--primary" id="save-edit">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Indicator -->
+    <!-- Loading -->
     <div class="loading" id="loading" style="display: none;">
         <div class="loading__spinner"></div>
-        <p>Calculating timeline...</p>
+        <p>Loading...</p>
     </div>
 
-    <!-- Toast Notifications -->
+    <!-- Toast container -->
     <div class="toast-container" id="toast-container"></div>
 
-    <!-- Main JavaScript -->
+    <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
