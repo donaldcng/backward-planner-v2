@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Theme & Font Fix Test - Backward Planner</title>
+    <style>
+        /* Minimal CSS for testing theme/font switching */
+        :root {
+            /* Default (Classic Blue) */
+            --primary: #1d4ed8;
+            --background: #ffffff;
+            --text: #111827;
+            --font-base: 1rem;
+        }
+        
+        /* Theme Switching - WORKING */
+        [data-theme="forest-green"] {
+            --primary: #047857 !important;
+        }
+        
+        [data-theme="sunset-orange"] {
+            --primary: #ea580c !important;
+        }
+        
+        [data-theme="dark-mode"] {
+            --primary: #3b82f6 !important;
+            --background: #0f172a !important;
+            --text: #f1f5f9 !important;
+        }
+        
+        [data-theme="purple-dark"] {
+            --primary: #a855f7 !important;
+            --background: #18181b !important;
+            --text: #fafafa !important;
+        }
+        
+        /* Font Size Switching - WORKING */
+        [data-font-size="small"] {
+            --font-base: 0.875rem !important;
+        }
+        
+        [data-font-size="large"] {
+            --font-base: 1.125rem !important;
+        }
+        
+        /* Basic Styles */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: var(--font-base);
+            color: var(--text);
+            background: var(--background);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+        
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 2px solid #ccc;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            background: white;
+            user-select: none;
+        }
+        
+        .theme-option:hover,
+        .theme-option.active {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .theme-preview {
+            width: 60px;
+            height: 40px;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .theme-preview--blue {
+            background: linear-gradient(45deg, #1d4ed8, #3b82f6, #e0e7ff);
+        }
+        
+        .theme-preview--green {
+            background: linear-gradient(45deg, #047857, #10b981, #d1fae5);
+        }
+        
+        .theme-preview--orange {
+            background: linear-gradient(45deg, #ea580c, #f97316, #fed7aa);
+        }
+        
+        .theme-preview--dark {
+            background: linear-gradient(45deg, #0f172a, #1e293b, #3b82f6);
+        }
+        
+        .theme-preview--purple-dark {
+            background: linear-gradient(45deg, #18181b, #3f3f46, #a855f7);
+        }
+        
+        .font-size-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 2rem 0;
+        }
+        
+        .font-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #ccc;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            user-select: none;
+        }
+        
+        .font-option:hover,
+        .font-option.selected {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, white);
+        }
+        
+        .font-option input {
+            margin-right: 0.75rem;
+        }
+        
+        .status {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: color-mix(in srgb, var(--primary) 10%, white);
+            border: 1px solid var(--primary);
+            margin: 1rem 0;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .toast {
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            font-size: 0.875rem;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast--success {
+            border-left: 4px solid #047857;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 2rem 0;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Theme & Font Size Fix Test</h1>
+        
+        <div class="status">
+            <strong>Status:</strong> Testing theme switching and font size functionality
+        </div>
+        
+        <h2>🎨 Theme Switching Test</h2>
+        <p>Click on any theme below to test the switching functionality:</p>
+        
+        <div class="theme-grid" id="theme-selector">
+            <div class="theme-option active" data-theme="classic-blue">
+                <div class="theme-preview theme-preview--blue"></div>
+                <span>Classic Blue</span>
+            </div>
+            <div class="theme-option" data-theme="forest-green">
+                <div class="theme-preview theme-preview--green"></div>
+                <span>Forest Green</span>
+            </div>
+            <div class="theme-option" data-theme="sunset-orange">
+                <div class="theme-preview theme-preview--orange"></div>
+                <span>Sunset Orange</span>
+            </div>
+            <div class="theme-option" data-theme="dark-mode">
+                <div class="theme-preview theme-preview--dark"></div>
+                <span>Dark Mode</span>
+            </div>
+            <div class="theme-option" data-theme="purple-dark">
+                <div class="theme-preview theme-preview--purple-dark"></div>
+                <span>Purple Dark</span>
+            </div>
+        </div>
+        
+        <h2>🔤 Font Size Test</h2>
+        <p>Click on any font size option to test the scaling functionality:</p>
+        
+        <div class="font-size-options" id="font-size-selector">
+            <label class="font-option">
+                <input type="radio" name="fontSize" value="small">
+                <span>Small (Compact)</span>
+            </label>
+            <label class="font-option selected">
+                <input type="radio" name="fontSize" value="medium" checked>
+                <span>Medium (Default)</span>
+            </label>
+            <label class="font-option">
+                <input type="radio" name="fontSize" value="large">
+                <span>Large (Accessible)</span>
+            </label>
+        </div>
+        
+        <h2>🐛 Debug Information</h2>
+        <div class="debug-info" id="debug-info">
+            Initializing debug information...
+        </div>
+        
+        <h2>📝 Test Instructions</h2>
+        <ol>
+            <li><strong>Theme Test:</strong> Click each theme preview - colors should change instantly</li>
+            <li><strong>Font Test:</strong> Click each font size option - text size should change</li>
+            <li><strong>Persistence Test:</strong> Refresh page - settings should be remembered</li>
+            <li><strong>Console Test:</strong> Open browser console for detailed logs</li>
+        </ol>
+        
+        <p><strong>Expected Results:</strong></p>
+        <ul>
+            <li>Theme changes should be <strong>instant and visible</strong></li>
+            <li>Font size changes should affect <strong>all text</strong></li>
+            <li>Settings should <strong>persist after page refresh</strong></li>
+            <li>Console should show <strong>detailed event logs</strong></li>
+        </ul>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Core JavaScript -->
+    <script>
+        // Include the bulletproof JavaScript inline for testing
+        console.log('🚀 Backward Planner initializing...');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded, binding events...');
+            
+            const savedTheme = localStorage.getItem('backward-planner-theme') || 'classic-blue';
+            const savedFontSize = localStorage.getItem('backward-planner-font-size') || 'medium';
+            
+            console.log('💾 Loaded settings:', { theme: savedTheme, fontSize: savedFontSize });
+            
+            applyTheme(savedTheme);
+            applyFontSize(savedFontSize);
+            bindThemeEvents();
+            bindFontSizeEvents();
+            updateDebugInfo();
+            
+            console.log('🎉 All event binding complete!');
+        });
+
+        function applyTheme(themeId) {
+            console.log('🎨 Applying theme:', themeId);
+            
+            document.documentElement.removeAttribute('data-theme');
+            document.body.removeAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', themeId);
+            document.body.setAttribute('data-theme', themeId);
+            
+            localStorage.setItem('backward-planner-theme', themeId);
+            updateThemeSelection(themeId);
+            updateDebugInfo();
+            
+            document.body.style.display = 'none';
+            document.body.offsetHeight;
+            document.body.style.display = '';
+            
+            console.log('✅ Theme applied successfully:', themeId);
+        }
+
+        function updateThemeSelection(activeTheme) {
+            const themeOptions = document.querySelectorAll('.theme-option');
+            themeOptions.forEach(option => {
+                const isActive = option.getAttribute('data-theme') === activeTheme;
+                option.classList.toggle('active', isActive);
+                console.log('Theme option', option.getAttribute('data-theme'), isActive ? 'activated' : 'deactivated');
+            });
+        }
+
+        function bindThemeEvents() {
+            const themeSelector = document.getElementById('theme-selector');
+            if (!themeSelector) {
+                console.error('❌ Theme selector not found!');
+                return;
+            }
+            
+            themeSelector.addEventListener('click', function(event) {
+                console.log('🖱️ Theme selector clicked:', event.target);
+                
+                let themeOption = event.target;
+                
+                while (themeOption && !themeOption.hasAttribute('data-theme')) {
+                    themeOption = themeOption.parentElement;
+                    if (themeOption === themeSelector) {
+                        themeOption = null;
+                        break;
+                    }
+                }
+                
+                if (themeOption && themeOption.hasAttribute('data-theme')) {
+                    const themeId = themeOption.getAttribute('data-theme');
+                    console.log('🎯 Theme selected:', themeId);
+                    applyTheme(themeId);
+                    showToast(`Theme changed to ${themeOption.textContent.trim()}`, 'success');
+                }
+            });
+            
+            console.log('✅ Theme events bound successfully');
+        }
+
+        function applyFontSize(fontSizeId) {
+            console.log('📝 Applying font size:', fontSizeId);
+            
+            document.documentElement.removeAttribute('data-font-size');
+            document.body.removeAttribute('data-font-size');
+            document.documentElement.setAttribute('data-font-size', fontSizeId);
+            document.body.setAttribute('data-font-size', fontSizeId);
+            
+            localStorage.setItem('backward-planner-font-size', fontSizeId);
+            updateFontSizeSelection(fontSizeId);
+            updateDebugInfo();
+            
+            document.body.style.display = 'none';
+            document.body.offsetHeight;
+            document.body.style.display = '';
+            
+            console.log('✅ Font size applied successfully:', fontSizeId);
+        }
+
+        function updateFontSizeSelection(activeFontSize) {
+            const fontOptions = document.querySelectorAll('.font-option');
+            fontOptions.forEach(option => {
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio) {
+                    const isActive = radio.value === activeFontSize;
+                    radio.checked = isActive;
+                    option.classList.toggle('selected', isActive);
+                    console.log('Font option', radio.value, isActive ? 'selected' : 'deselected');
+                }
+            });
+        }
+
+        function bindFontSizeEvents() {
+            const fontSizeSelector = document.getElementById('font-size-selector');
+            if (!fontSizeSelector) {
+                console.error('❌ Font size selector not found!');
+                return;
+            }
+            
+            fontSizeSelector.addEventListener('click', function(event) {
+                console.log('🖱️ Font size selector clicked:', event.target);
+                
+                let fontOption = event.target;
+                let radioInput = null;
+                
+                if (fontOption.type === 'radio' && fontOption.name === 'fontSize') {
+                    radioInput = fontOption;
+                    fontOption = fontOption.closest('.font-option');
+                } else {
+                    while (fontOption && !fontOption.classList.contains('font-option')) {
+                        fontOption = fontOption.parentElement;
+                        if (fontOption === fontSizeSelector) {
+                            fontOption = null;
+                            break;
+                        }
+                    }
+                    
+                    if (fontOption) {
+                        radioInput = fontOption.querySelector('input[type="radio"]');
+                    }
+                }
+                
+                if (radioInput && fontOption) {
+                    const fontSizeId = radioInput.value;
+                    console.log('🎯 Font size selected:', fontSizeId);
+                    
+                    radioInput.checked = true;
+                    applyFontSize(fontSizeId);
+                    showToast(`Font size changed to ${fontSizeId}`, 'success');
+                }
+            });
+            
+            console.log('✅ Font size events bound successfully');
+        }
+
+        function showToast(message, type = 'info') {
+            console.log('💬 Showing toast:', message, type);
+            
+            const toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) return;
+            
+            const toast = document.createElement('div');
+            toast.classList.add('toast', `toast--${type}`);
+            
+            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+            
+            toast.innerHTML = `
+                <span>${icons[type] || icons.info}</span>
+                <span>${message}</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debug-info');
+            if (!debugInfo) return;
+            
+            const info = {
+                theme: localStorage.getItem('backward-planner-theme'),
+                fontSize: localStorage.getItem('backward-planner-font-size'),
+                htmlTheme: document.documentElement.getAttribute('data-theme'),
+                htmlFontSize: document.documentElement.getAttribute('data-font-size'),
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            debugInfo.innerHTML = `
+                <strong>Current Settings (${info.timestamp}):</strong><br>
+                • Theme: ${info.theme}<br>
+                • Font Size: ${info.fontSize}<br>
+                • HTML Theme Attr: ${info.htmlTheme}<br>
+                • HTML Font Attr: ${info.htmlFontSize}
+            `;
+        }
+
+        // Debug functions
+        window.testTheme = function(themeId) {
+            console.log('🧪 Testing theme:', themeId);
+            applyTheme(themeId);
+        };
+
+        window.testFontSize = function(fontSizeId) {
+            console.log('🧪 Testing font size:', fontSizeId);
+            applyFontSize(fontSizeId);
+        };
+    </script>
+</body>
+</html>

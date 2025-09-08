@@ -1,5 +1,4 @@
-# Create a minimal, bulletproof JavaScript that focuses on the core issue
-js_content = '''
+
 // ==========================================================================
 // BACKWARD PLANNER - WORKING JAVASCRIPT (BULLETPROOF)
 // Guaranteed working theme and font size switching
@@ -10,23 +9,23 @@ console.log('🚀 Backward Planner initializing...');
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM loaded, binding events...');
-    
+
     // Initialize theme and font size from localStorage
     const savedTheme = localStorage.getItem('backward-planner-theme') || 'classic-blue';
     const savedFontSize = localStorage.getItem('backward-planner-font-size') || 'medium';
-    
+
     console.log('💾 Loaded settings:', { theme: savedTheme, fontSize: savedFontSize });
-    
+
     // Apply saved settings immediately
     applyTheme(savedTheme);
     applyFontSize(savedFontSize);
-    
+
     // Bind theme switching events
     bindThemeEvents();
-    
+
     // Bind font size events  
     bindFontSizeEvents();
-    
+
     console.log('🎉 All event binding complete!');
 });
 
@@ -36,26 +35,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function applyTheme(themeId) {
     console.log('🎨 Applying theme:', themeId);
-    
+
     // Remove all existing theme attributes
     document.documentElement.removeAttribute('data-theme');
     document.body.removeAttribute('data-theme');
-    
+
     // Apply new theme
     document.documentElement.setAttribute('data-theme', themeId);
     document.body.setAttribute('data-theme', themeId);
-    
+
     // Save to localStorage
     localStorage.setItem('backward-planner-theme', themeId);
-    
+
     // Update visual selection
     updateThemeSelection(themeId);
-    
+
     // Force repaint
     document.body.style.display = 'none';
     document.body.offsetHeight; // Trigger reflow
     document.body.style.display = '';
-    
+
     console.log('✅ Theme applied successfully:', themeId);
 }
 
@@ -74,14 +73,14 @@ function bindThemeEvents() {
         console.error('❌ Theme selector not found!');
         return;
     }
-    
+
     // Use event delegation for reliable event binding
     themeSelector.addEventListener('click', function(event) {
         console.log('🖱️ Theme selector clicked:', event.target);
-        
+
         // Find the theme option (could be the option itself or a child element)
         let themeOption = event.target;
-        
+
         // Traverse up to find the theme option
         while (themeOption && !themeOption.hasAttribute('data-theme')) {
             themeOption = themeOption.parentElement;
@@ -90,7 +89,7 @@ function bindThemeEvents() {
                 break;
             }
         }
-        
+
         if (themeOption && themeOption.hasAttribute('data-theme')) {
             const themeId = themeOption.getAttribute('data-theme');
             console.log('🎯 Theme selected:', themeId);
@@ -98,7 +97,7 @@ function bindThemeEvents() {
             showToast(`Theme changed to ${themeOption.textContent.trim()}`, 'success');
         }
     });
-    
+
     console.log('✅ Theme events bound successfully');
 }
 
@@ -108,26 +107,26 @@ function bindThemeEvents() {
 
 function applyFontSize(fontSizeId) {
     console.log('📝 Applying font size:', fontSizeId);
-    
+
     // Remove all existing font size attributes
     document.documentElement.removeAttribute('data-font-size');
     document.body.removeAttribute('data-font-size');
-    
+
     // Apply new font size
     document.documentElement.setAttribute('data-font-size', fontSizeId);
     document.body.setAttribute('data-font-size', fontSizeId);
-    
+
     // Save to localStorage
     localStorage.setItem('backward-planner-font-size', fontSizeId);
-    
+
     // Update visual selection
     updateFontSizeSelection(fontSizeId);
-    
+
     // Force repaint
     document.body.style.display = 'none';
     document.body.offsetHeight; // Trigger reflow
     document.body.style.display = '';
-    
+
     console.log('✅ Font size applied successfully:', fontSizeId);
 }
 
@@ -150,14 +149,14 @@ function bindFontSizeEvents() {
         console.error('❌ Font size selector not found!');
         return;
     }
-    
+
     // Use event delegation for reliable event binding
     fontSizeSelector.addEventListener('click', function(event) {
         console.log('🖱️ Font size selector clicked:', event.target);
-        
+
         let fontOption = event.target;
         let radioInput = null;
-        
+
         // If clicked on radio input directly
         if (fontOption.type === 'radio' && fontOption.name === 'fontSize') {
             radioInput = fontOption;
@@ -172,24 +171,24 @@ function bindFontSizeEvents() {
                     break;
                 }
             }
-            
+
             if (fontOption) {
                 radioInput = fontOption.querySelector('input[type="radio"]');
             }
         }
-        
+
         if (radioInput && fontOption) {
             const fontSizeId = radioInput.value;
             console.log('🎯 Font size selected:', fontSizeId);
-            
+
             // Ensure radio is checked
             radioInput.checked = true;
-            
+
             applyFontSize(fontSizeId);
             showToast(`Font size changed to ${fontSizeId}`, 'success');
         }
     });
-    
+
     // Also bind change events to radio buttons directly
     const radioButtons = fontSizeSelector.querySelectorAll('input[type="radio"]');
     radioButtons.forEach(radio => {
@@ -201,7 +200,7 @@ function bindFontSizeEvents() {
             }
         });
     });
-    
+
     console.log('✅ Font size events bound successfully');
 }
 
@@ -211,32 +210,32 @@ function bindFontSizeEvents() {
 
 function showToast(message, type = 'info') {
     console.log('💬 Showing toast:', message, type);
-    
+
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
         console.error('❌ Toast container not found!');
         return;
     }
-    
+
     const toast = document.createElement('div');
     toast.classList.add('toast', `toast--${type}`);
-    
+
     const icons = {
         success: '✅',
         error: '❌', 
         info: 'ℹ️'
     };
-    
+
     toast.innerHTML = `
         <span>${icons[type] || icons.info}</span>
         <span>${escapeHtml(message)}</span>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     // Show toast
     setTimeout(() => toast.classList.add('show'), 100);
-    
+
     // Hide and remove toast
     setTimeout(() => {
         toast.classList.remove('show');
@@ -277,12 +276,3 @@ window.debugSettings = function() {
 };
 
 console.log('🔧 Debug functions available: testTheme(), testFontSize(), debugSettings()');
-'''
-
-# Save the JavaScript to a file
-with open('script-core.js', 'w', encoding='utf-8') as f:
-    f.write(js_content)
-
-print("✅ Core JavaScript created successfully!")
-print("📏 File size:", len(js_content), "characters")
-print("🎯 This focuses only on theme/font switching with bulletproof event binding")

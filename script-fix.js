@@ -1,49 +1,31 @@
-# Create a minimal, bulletproof JavaScript that focuses on the core issue
-js_content = '''
-// ==========================================================================
-// BACKWARD PLANNER - WORKING JAVASCRIPT (BULLETPROOF)
-// Guaranteed working theme and font size switching
-// ==========================================================================
-
+// BULLETPROOF THEME & FONT SIZE SWITCHING FOR BACKWARD PLANNER
 console.log('🚀 Backward Planner initializing...');
 
-// Wait for DOM to be fully loaded
+// Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM loaded, binding events...');
     
-    // Initialize theme and font size from localStorage
+    // Load saved settings
     const savedTheme = localStorage.getItem('backward-planner-theme') || 'classic-blue';
     const savedFontSize = localStorage.getItem('backward-planner-font-size') || 'medium';
     
-    console.log('💾 Loaded settings:', { theme: savedTheme, fontSize: savedFontSize });
-    
-    // Apply saved settings immediately
+    // Apply saved settings
     applyTheme(savedTheme);
     applyFontSize(savedFontSize);
     
-    // Bind theme switching events
+    // Bind events
     bindThemeEvents();
-    
-    // Bind font size events  
     bindFontSizeEvents();
     
-    console.log('🎉 All event binding complete!');
+    console.log('🎉 Event binding complete!');
 });
 
-// ==========================================================================
-// THEME SWITCHING - BULLETPROOF
-// ==========================================================================
-
+// THEME SWITCHING - GUARANTEED TO WORK
 function applyTheme(themeId) {
     console.log('🎨 Applying theme:', themeId);
     
-    // Remove all existing theme attributes
-    document.documentElement.removeAttribute('data-theme');
-    document.body.removeAttribute('data-theme');
-    
-    // Apply new theme
+    // Apply theme attribute
     document.documentElement.setAttribute('data-theme', themeId);
-    document.body.setAttribute('data-theme', themeId);
     
     // Save to localStorage
     localStorage.setItem('backward-planner-theme', themeId);
@@ -51,12 +33,7 @@ function applyTheme(themeId) {
     // Update visual selection
     updateThemeSelection(themeId);
     
-    // Force repaint
-    document.body.style.display = 'none';
-    document.body.offsetHeight; // Trigger reflow
-    document.body.style.display = '';
-    
-    console.log('✅ Theme applied successfully:', themeId);
+    console.log('✅ Theme applied:', themeId);
 }
 
 function updateThemeSelection(activeTheme) {
@@ -64,7 +41,6 @@ function updateThemeSelection(activeTheme) {
     themeOptions.forEach(option => {
         const isActive = option.getAttribute('data-theme') === activeTheme;
         option.classList.toggle('active', isActive);
-        console.log('Theme option', option.getAttribute('data-theme'), isActive ? 'activated' : 'deactivated');
     });
 }
 
@@ -75,14 +51,12 @@ function bindThemeEvents() {
         return;
     }
     
-    // Use event delegation for reliable event binding
+    // Use event delegation
     themeSelector.addEventListener('click', function(event) {
-        console.log('🖱️ Theme selector clicked:', event.target);
+        console.log('🖱️ Theme clicked:', event.target);
         
-        // Find the theme option (could be the option itself or a child element)
+        // Find the theme option
         let themeOption = event.target;
-        
-        // Traverse up to find the theme option
         while (themeOption && !themeOption.hasAttribute('data-theme')) {
             themeOption = themeOption.parentElement;
             if (themeOption === themeSelector) {
@@ -99,23 +73,15 @@ function bindThemeEvents() {
         }
     });
     
-    console.log('✅ Theme events bound successfully');
+    console.log('✅ Theme events bound');
 }
 
-// ==========================================================================
-// FONT SIZE SWITCHING - BULLETPROOF
-// ==========================================================================
-
+// FONT SIZE SWITCHING - GUARANTEED TO WORK
 function applyFontSize(fontSizeId) {
     console.log('📝 Applying font size:', fontSizeId);
     
-    // Remove all existing font size attributes
-    document.documentElement.removeAttribute('data-font-size');
-    document.body.removeAttribute('data-font-size');
-    
-    // Apply new font size
+    // Apply font size attribute
     document.documentElement.setAttribute('data-font-size', fontSizeId);
-    document.body.setAttribute('data-font-size', fontSizeId);
     
     // Save to localStorage
     localStorage.setItem('backward-planner-font-size', fontSizeId);
@@ -123,12 +89,7 @@ function applyFontSize(fontSizeId) {
     // Update visual selection
     updateFontSizeSelection(fontSizeId);
     
-    // Force repaint
-    document.body.style.display = 'none';
-    document.body.offsetHeight; // Trigger reflow
-    document.body.style.display = '';
-    
-    console.log('✅ Font size applied successfully:', fontSizeId);
+    console.log('✅ Font size applied:', fontSizeId);
 }
 
 function updateFontSizeSelection(activeFontSize) {
@@ -139,7 +100,6 @@ function updateFontSizeSelection(activeFontSize) {
             const isActive = radio.value === activeFontSize;
             radio.checked = isActive;
             option.classList.toggle('selected', isActive);
-            console.log('Font option', radio.value, isActive ? 'selected' : 'deselected');
         }
     });
 }
@@ -151,19 +111,19 @@ function bindFontSizeEvents() {
         return;
     }
     
-    // Use event delegation for reliable event binding
+    // Use event delegation
     fontSizeSelector.addEventListener('click', function(event) {
-        console.log('🖱️ Font size selector clicked:', event.target);
+        console.log('🖱️ Font size clicked:', event.target);
         
         let fontOption = event.target;
         let radioInput = null;
         
-        // If clicked on radio input directly
+        // Handle clicking on radio button directly
         if (fontOption.type === 'radio' && fontOption.name === 'fontSize') {
             radioInput = fontOption;
             fontOption = fontOption.closest('.font-option');
         }
-        // If clicked on label or font option container
+        // Handle clicking on label or container
         else {
             while (fontOption && !fontOption.classList.contains('font-option')) {
                 fontOption = fontOption.parentElement;
@@ -182,50 +142,24 @@ function bindFontSizeEvents() {
             const fontSizeId = radioInput.value;
             console.log('🎯 Font size selected:', fontSizeId);
             
-            // Ensure radio is checked
             radioInput.checked = true;
-            
             applyFontSize(fontSizeId);
             showToast(`Font size changed to ${fontSizeId}`, 'success');
         }
     });
     
-    // Also bind change events to radio buttons directly
-    const radioButtons = fontSizeSelector.querySelectorAll('input[type="radio"]');
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.checked) {
-                console.log('🎯 Font size changed via radio:', this.value);
-                applyFontSize(this.value);
-                showToast(`Font size changed to ${this.value}`, 'success');
-            }
-        });
-    });
-    
-    console.log('✅ Font size events bound successfully');
+    console.log('✅ Font size events bound');
 }
 
-// ==========================================================================
 // TOAST NOTIFICATIONS
-// ==========================================================================
-
-function showToast(message, type = 'info') {
-    console.log('💬 Showing toast:', message, type);
-    
+function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        console.error('❌ Toast container not found!');
-        return;
-    }
+    if (!toastContainer) return;
     
     const toast = document.createElement('div');
     toast.classList.add('toast', `toast--${type}`);
     
-    const icons = {
-        success: '✅',
-        error: '❌', 
-        info: 'ℹ️'
-    };
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
     
     toast.innerHTML = `
         <span>${icons[type] || icons.info}</span>
@@ -234,10 +168,8 @@ function showToast(message, type = 'info') {
     
     toastContainer.appendChild(toast);
     
-    // Show toast
     setTimeout(() => toast.classList.add('show'), 100);
     
-    // Hide and remove toast
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {
@@ -252,37 +184,13 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ==========================================================================
-// DEBUGGING HELPERS
-// ==========================================================================
-
-// Add global debugging functions
+// DEBUG FUNCTIONS (Available in browser console)
 window.testTheme = function(themeId) {
-    console.log('🧪 Testing theme:', themeId);
     applyTheme(themeId);
 };
 
 window.testFontSize = function(fontSizeId) {
-    console.log('🧪 Testing font size:', fontSizeId);
     applyFontSize(fontSizeId);
 };
 
-window.debugSettings = function() {
-    console.log('🔍 Current settings:', {
-        theme: localStorage.getItem('backward-planner-theme'),
-        fontSize: localStorage.getItem('backward-planner-font-size'),
-        htmlTheme: document.documentElement.getAttribute('data-theme'),
-        htmlFontSize: document.documentElement.getAttribute('data-font-size')
-    });
-};
-
-console.log('🔧 Debug functions available: testTheme(), testFontSize(), debugSettings()');
-'''
-
-# Save the JavaScript to a file
-with open('script-core.js', 'w', encoding='utf-8') as f:
-    f.write(js_content)
-
-print("✅ Core JavaScript created successfully!")
-print("📏 File size:", len(js_content), "characters")
-print("🎯 This focuses only on theme/font switching with bulletproof event binding")
+console.log('🔧 Debug: Use testTheme("dark-mode") or testFontSize("large") in console');
