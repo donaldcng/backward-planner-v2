@@ -1,6 +1,6 @@
 // ==========================================================================
-// Enhanced Backward Planner - Complete JavaScript Application (Bug Fixes)
-// Preserves all original functionality while adding new enhancements
+// Enhanced Backward Planner - Complete JavaScript Application (Bug Fixes v2)
+// All Critical Bugs Fixed
 // ==========================================================================
 
 // Application State
@@ -174,7 +174,7 @@ const holidaysData = {
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
-  console.log('Initializing Backward Planner v2.0...');
+  console.log('Initializing Enhanced Backward Planner v2.0...');
   
   loadHolidays();
   bindEventListeners();
@@ -220,7 +220,7 @@ function bindEventListeners() {
   if (refs.importBtn) refs.importBtn.addEventListener('click', () => refs.importFile?.click());
   if (refs.importFile) refs.importFile.addEventListener('change', handleImport);
   
-  // Settings - Fixed theme and font size event handlers
+  // Settings - Fixed event handlers
   if (refs.themeSelector) refs.themeSelector.addEventListener('click', handleThemeChange);
   if (refs.fontSizeSelector) {
     refs.fontSizeSelector.addEventListener('change', handleFontSizeChange);
@@ -324,12 +324,14 @@ function updateDeadlineDisplay() {
 }
 
 // ==========================================================================
-// Task Management
+// Task Management - FIXED BUG #3
 // ==========================================================================
 
 function handleAddTask() {
   const name = refs.taskNameInput?.value.trim();
   const duration = parseInt(refs.taskDurationInput?.value, 10);
+  
+  console.log('Adding task:', { name, duration });
   
   if (!name) {
     showToast('Please enter a task name', 'warning');
@@ -349,23 +351,43 @@ function handleAddTask() {
   }
   
   // Add task to state
-  state.tasks.push({
+  const newTask = {
     id: Date.now(),
     name: name,
     duration: duration,
     description: '',
     startDate: null,
     endDate: null
-  });
+  };
+  
+  state.tasks.push(newTask);
+  console.log('Task added, total tasks:', state.tasks.length);
   
   // Clear inputs
   if (refs.taskNameInput) refs.taskNameInput.value = '';
   if (refs.taskDurationInput) refs.taskDurationInput.value = '';
   
-  // Update UI
+  // Update UI immediately to show task was added
+  updateTaskList();
   updateUI();
+  
   showToast(`Task "${name}" added successfully!`, 'success');
   refs.taskNameInput?.focus();
+}
+
+function updateTaskList() {
+  // Show tasks in simple list format before timeline is generated
+  if (!refs.noTasksMsg) return;
+  
+  if (state.tasks.length === 0) {
+    refs.noTasksMsg.textContent = state.deadline ? 'No tasks added yet.' : 'Please set a deadline first.';
+    refs.noTasksMsg.style.display = 'block';
+    if (refs.planTable) refs.planTable.style.display = 'none';
+  } else {
+    refs.noTasksMsg.textContent = `${state.tasks.length} task(s) added. Click "Generate Timeline" to see the schedule.`;
+    refs.noTasksMsg.style.display = 'block';
+    if (refs.planTable) refs.planTable.style.display = 'none';
+  }
 }
 
 function editTask(index) {
@@ -400,7 +422,10 @@ function saveTaskEdit() {
   task.duration = duration;
   task.description = description;
   
-  calculateTimeline();
+  // Recalculate if timeline exists
+  if (state.tasks[0]?.startDate) {
+    calculateTimeline();
+  }
   updateUI();
   closeEditModal();
   
@@ -413,7 +438,11 @@ function deleteTask(index) {
   const task = state.tasks[index];
   if (confirm(`Delete task "${task.name}"?`)) {
     state.tasks.splice(index, 1);
-    calculateTimeline();
+    
+    // Recalculate if timeline exists
+    if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
+      calculateTimeline();
+    }
     updateUI();
     showToast('Task deleted successfully!', 'success');
   }
@@ -425,17 +454,20 @@ function closeEditModal() {
 }
 
 // ==========================================================================
-// Timeline Calculation (Preserved Original Logic) - FIXED
+// Timeline Calculation - FIXED BUG #4
 // ==========================================================================
 
 function calculateTimeline() {
   if (!state.deadline || state.tasks.length === 0) {
     console.log('Cannot calculate timeline: missing deadline or tasks');
-    return;
+    return false;
   }
   
   try {
+    console.log('Calculating timeline for', state.tasks.length, 'tasks');
+    
     let currentEndDate = getValidEndDate(state.deadline);
+    console.log('Starting from end date:', currentEndDate);
     
     // Process tasks in reverse order (backward planning)
     for (let i = state.tasks.length - 1; i >= 0; i--) {
@@ -444,8 +476,10 @@ function calculateTimeline() {
       // Set task end date
       task.endDate = new Date(currentEndDate);
       
-      // Calculate start date
+      // Calculate start date - FIXED: Ensure proper date handling
       task.startDate = findStartDate(currentEndDate, task.duration);
+      
+      console.log(`Task ${task.name}: ${formatDate(task.startDate)} to ${formatDate(task.endDate)} (${task.duration} days)`);
       
       // Next task ends when current task starts (minus 1 working day)
       if (i > 0) {
@@ -454,31 +488,49 @@ function calculateTimeline() {
     }
     
     console.log('Timeline calculated successfully');
+    return true;
   } catch (error) {
     console.error('Error calculating timeline:', error);
-    showToast('Error calculating timeline', 'error');
+    showToast('Error calculating timeline: ' + error.message, 'error');
+    return false;
   }
 }
 
 function getValidEndDate(date) {
   let d = new Date(date);
-  if (isWeekend(d) || isExcludedHoliday(d)) {
-    while (isWeekend(d) || isExcludedHoliday(d)) {
-      d = addDays(d, -1);
-    }
+  let attempts = 0;
+  const maxAttempts = 30; // Prevent infinite loops
+  
+  while ((isWeekend(d) || isExcludedHoliday(d)) && attempts < maxAttempts) {
+    d = addDays(d, -1);
+    attempts++;
   }
+  
+  if (attempts >= maxAttempts) {
+    console.warn('Max attempts reached finding valid end date');
+  }
+  
   return normalizeDate(d);
 }
 
 function findStartDate(endDate, duration) {
-  let daysLeft = duration - 1;
-  let d = new Date(endDate);
+  if (duration <= 0) return new Date(endDate);
   
-  while (daysLeft > 0) {
+  let daysLeft = duration - 1; // Duration includes the end date
+  let d = new Date(endDate);
+  let attempts = 0;
+  const maxAttempts = duration * 7; // Allow for weekends and holidays
+  
+  while (daysLeft > 0 && attempts < maxAttempts) {
     d = addDays(d, -1);
     if (!isWeekend(d) && !isExcludedHoliday(d)) {
       daysLeft--;
     }
+    attempts++;
+  }
+  
+  if (attempts >= maxAttempts) {
+    console.warn(`Max attempts reached finding start date for duration ${duration}`);
   }
   
   return normalizeDate(d);
@@ -486,9 +538,18 @@ function findStartDate(endDate, duration) {
 
 function findPreviousWorkingDay(date) {
   let d = addDays(date, -1);
-  while (isWeekend(d) || isExcludedHoliday(d)) {
+  let attempts = 0;
+  const maxAttempts = 30;
+  
+  while ((isWeekend(d) || isExcludedHoliday(d)) && attempts < maxAttempts) {
     d = addDays(d, -1);
+    attempts++;
   }
+  
+  if (attempts >= maxAttempts) {
+    console.warn('Max attempts reached finding previous working day');
+  }
+  
   return normalizeDate(d);
 }
 
@@ -504,27 +565,32 @@ function handleGenerateTimeline() {
   }
   
   if (state.isGeneratingTimeline) {
+    console.log('Timeline generation already in progress');
     return; // Prevent multiple clicks
   }
   
+  console.log('Starting timeline generation...');
   state.isGeneratingTimeline = true;
   showLoading('Calculating timeline...');
   
   // Use shorter delay to reduce hanging perception
   setTimeout(() => {
     try {
-      calculateTimeline();
-      updateUI();
-      initDragAndDrop();
-      showToast('Timeline generated successfully!', 'success');
+      const success = calculateTimeline();
+      if (success) {
+        updateUI();
+        initDragAndDrop();
+        showToast('Timeline generated successfully!', 'success');
+      }
     } catch (error) {
       console.error('Timeline generation error:', error);
-      showToast('Error generating timeline', 'error');
+      showToast('Error generating timeline: ' + error.message, 'error');
     } finally {
       hideLoading();
       state.isGeneratingTimeline = false;
+      console.log('Timeline generation completed');
     }
-  }, 300);
+  }, 500);
 }
 
 // ==========================================================================
@@ -594,8 +660,12 @@ function isExcludedHoliday(date) {
 
 function handleHolidayToggle() {
   state.skipHolidays = refs.excludeHolidaysCheckbox?.checked ?? true;
-  calculateTimeline();
-  updateUI();
+  
+  // Recalculate timeline if it exists
+  if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
+    calculateTimeline();
+    updateUI();
+  }
   
   const message = state.skipHolidays ? 
     'Holidays will be skipped in calculations' : 
@@ -630,7 +700,9 @@ function initDragAndDrop() {
         
         rows.forEach(row => {
           const taskName = row.cells[0]?.textContent?.trim();
-          const task = state.tasks.find(t => t.name === taskName);
+          // Extract just the task name (before any line breaks)
+          const cleanTaskName = taskName?.split('\n')[0] || '';
+          const task = state.tasks.find(t => t.name === cleanTaskName);
           if (task) {
             newTasks.push(task);
           }
@@ -650,10 +722,11 @@ function initDragAndDrop() {
 }
 
 // ==========================================================================
-// UI Rendering
+// UI Rendering - FIXED BUG #3
 // ==========================================================================
 
 function updateUI() {
+  console.log('Updating UI, tasks:', state.tasks.length);
   renderTasks();
   updateButtons();
 }
@@ -663,13 +736,17 @@ function renderTasks() {
   
   const hasTasksWithTimeline = state.tasks.length > 0 && state.tasks[0]?.startDate;
   
-  // Show/hide table and empty message
-  refs.planTable.style.display = hasTasksWithTimeline ? 'table' : 'none';
-  refs.noTasksMsg.style.display = hasTasksWithTimeline ? 'none' : 'block';
+  console.log('Rendering tasks:', {
+    tasksCount: state.tasks.length,
+    hasTimeline: hasTasksWithTimeline
+  });
   
   if (hasTasksWithTimeline) {
-    refs.planBody.innerHTML = '';
+    // Show full timeline table
+    refs.planTable.style.display = 'table';
+    refs.noTasksMsg.style.display = 'none';
     
+    refs.planBody.innerHTML = '';
     state.tasks.forEach((task, index) => {
       const row = document.createElement('tr');
       row.classList.add('task-row');
@@ -694,6 +771,28 @@ function renderTasks() {
       `;
       refs.planBody.appendChild(row);
     });
+  } else {
+    // Show task count or empty message
+    refs.planTable.style.display = 'none';
+    refs.noTasksMsg.style.display = 'block';
+    
+    if (state.tasks.length === 0) {
+      refs.noTasksMsg.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">📋</div>
+          <h4>No tasks added yet</h4>
+          <p>Add your first task above to get started with planning</p>
+        </div>
+      `;
+    } else {
+      refs.noTasksMsg.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">⏳</div>
+          <h4>${state.tasks.length} task${state.tasks.length !== 1 ? 's' : ''} added</h4>
+          <p>Click "Generate Timeline" to see your project schedule</p>
+        </div>
+      `;
+    }
   }
 }
 
@@ -717,11 +816,27 @@ function updateButtons() {
 }
 
 // ==========================================================================
-// Theme Management (New Enhancement) - FIXED
+// Theme Management - FIXED BUG #1 - New 5 Theme System
 // ==========================================================================
+
+const themes = [
+  { id: 'classic-blue', name: 'Classic Blue', type: 'light' },
+  { id: 'forest-green', name: 'Forest Green', type: 'light' },
+  { id: 'sunset-orange', name: 'Sunset Orange', type: 'light' },
+  { id: 'dark-mode', name: 'Dark Mode', type: 'dark' },
+  { id: 'purple-dark', name: 'Purple Dark', type: 'dark' }
+];
 
 function applyTheme(themeId) {
   console.log('Applying theme:', themeId);
+  
+  // Validate theme ID
+  const theme = themes.find(t => t.id === themeId);
+  if (!theme) {
+    console.warn('Invalid theme ID, using default');
+    themeId = 'classic-blue';
+  }
+  
   state.currentTheme = themeId;
   document.documentElement.setAttribute('data-theme', themeId);
   localStorage.setItem('backward-planner-theme', themeId);
@@ -733,7 +848,7 @@ function applyTheme(themeId) {
     });
   }
   
-  console.log('Theme applied successfully');
+  console.log('Theme applied successfully:', themeId);
 }
 
 function handleThemeChange(e) {
@@ -742,17 +857,32 @@ function handleThemeChange(e) {
     const themeId = themeOption.dataset.theme;
     if (themeId) {
       applyTheme(themeId);
-      showToast(`Theme changed to ${themeOption.textContent.trim()}`, 'success');
+      const theme = themes.find(t => t.id === themeId);
+      showToast(`Theme changed to ${theme?.name || themeId}`, 'success');
     }
   }
 }
 
 // ==========================================================================
-// Font Size Management (New Enhancement) - FIXED
+// Font Size Management - FIXED BUG #2
 // ==========================================================================
+
+const fontSizes = [
+  { id: 'small', name: 'Small (Compact)' },
+  { id: 'medium', name: 'Medium (Default)' },
+  { id: 'large', name: 'Large (Accessible)' }
+];
 
 function applyFontSize(fontSizeId) {
   console.log('Applying font size:', fontSizeId);
+  
+  // Validate font size ID
+  const fontSize = fontSizes.find(f => f.id === fontSizeId);
+  if (!fontSize) {
+    console.warn('Invalid font size ID, using default');
+    fontSizeId = 'medium';
+  }
+  
   state.currentFontSize = fontSizeId;
   document.documentElement.setAttribute('data-font-size', fontSizeId);
   localStorage.setItem('backward-planner-font-size', fontSizeId);
@@ -763,7 +893,7 @@ function applyFontSize(fontSizeId) {
     if (radio) radio.checked = true;
   }
   
-  console.log('Font size applied successfully');
+  console.log('Font size applied successfully:', fontSizeId);
 }
 
 function handleFontSizeChange(e) {
@@ -782,14 +912,8 @@ function handleFontSizeChange(e) {
   
   if (fontSizeId) {
     applyFontSize(fontSizeId);
-    
-    const labels = {
-      small: 'Small (Compact)',
-      medium: 'Medium (Default)',
-      large: 'Large (Accessible)'
-    };
-    
-    showToast(`Font size changed to ${labels[fontSizeId]}`, 'success');
+    const fontSize = fontSizes.find(f => f.id === fontSizeId);
+    showToast(`Font size changed to ${fontSize?.name || fontSizeId}`, 'success');
   }
 }
 
@@ -823,7 +947,10 @@ function resetSettings() {
     if (refs.dateFormatSelect) refs.dateFormatSelect.value = state.dateFormat;
     if (refs.excludeHolidaysCheckbox) refs.excludeHolidaysCheckbox.checked = state.skipHolidays;
     
-    calculateTimeline();
+    // Recalculate timeline if it exists
+    if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
+      calculateTimeline();
+    }
     updateUI();
     renderHolidays();
     
@@ -917,14 +1044,14 @@ function importProject(data) {
     state.projectDescription = data.project.description || '';
     state.deadline = new Date(data.project.deadline);
     
-    // Import tasks
+    // Import tasks - Clear start/end dates to force recalculation
     state.tasks = data.tasks.map(task => ({
       id: task.id || Date.now() + Math.random(),
       name: task.name || 'Unnamed Task',
       description: task.description || '',
       duration: parseInt(task.duration) || 1,
-      startDate: task.startDate ? new Date(task.startDate) : null,
-      endDate: task.endDate ? new Date(task.endDate) : null
+      startDate: null, // Clear dates to force recalculation
+      endDate: null
     }));
     
     // Import settings if available
@@ -952,11 +1079,11 @@ function importProject(data) {
     
     updateDeadlineDisplay();
     if (refs.taskSection) refs.taskSection.style.display = 'block';
-    calculateTimeline();
-    updateUI();
-    initDragAndDrop();
     
-    showToast('Project imported successfully!', 'success');
+    // Update UI to show tasks imported but timeline needs to be generated
+    updateUI();
+    
+    showToast('Project imported successfully! Click "Generate Timeline" to see the schedule.', 'success');
     showPage('planning');
     
   } catch (error) {
