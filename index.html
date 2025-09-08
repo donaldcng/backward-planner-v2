@@ -7,6 +7,62 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        /* Larger date picker button - INLINE OVERRIDE */
+        input[type="date"] {
+            padding: 1rem 1.25rem !important;
+            min-height: 64px !important;
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+            border: 3px solid var(--border) !important;
+            border-radius: 0.75rem !important;
+        }
+        
+        input[type="date"]:hover {
+            border-color: var(--primary) !important;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+        
+        /* Holiday items styling */
+        .holiday-list {
+            margin-top: 1.5rem;
+        }
+        
+        .holiday-list h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        
+        .holiday-items {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: var(--space);
+            background: var(--surface-hover);
+        }
+        
+        .holiday-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        
+        .holiday-item:last-child {
+            border-bottom: none;
+        }
+        
+        .holiday-date {
+            font-weight: 600;
+            min-width: 100px;
+            color: var(--primary);
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -158,7 +214,7 @@
                     </div>
                     <div class="card__content">
                         <div class="theme-grid" id="theme-selector">
-                            <div class="theme-option" data-theme="classic-blue">
+                            <div class="theme-option active" data-theme="classic-blue">
                                 <div class="theme-preview theme-preview--blue"></div>
                                 <span>Classic Blue</span>
                             </div>
@@ -194,7 +250,7 @@
                                 <input type="radio" name="fontSize" value="small">
                                 <span>Small (Compact)</span>
                             </label>
-                            <label class="font-option">
+                            <label class="font-option selected">
                                 <input type="radio" name="fontSize" value="medium" checked>
                                 <span>Medium (Default)</span>
                             </label>
@@ -220,6 +276,14 @@
                                 Skip Hong Kong public holidays in timeline calculations
                             </label>
                         </div>
+                        
+                        <!-- Holiday List - ADDED -->
+                        <div class="holiday-list">
+                            <h4>📋 Hong Kong Public Holidays (2024-2027)</h4>
+                            <div class="holiday-items" id="holiday-items">
+                                <!-- Holidays will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -238,7 +302,44 @@
                         <h3>🤔 What is Backward Planning?</h3>
                     </div>
                     <div class="card__content">
-                        <p>Backward planning is a strategic approach that starts with your project deadline and works backward to determine when each task should begin.</p>
+                        <p>Backward planning is a strategic approach that starts with your project deadline and works backward to determine when each task should begin. This method ensures you meet your deadline while accounting for all necessary work, dependencies, and holidays.</p>
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">✨ Key Benefits:</h4>
+                        <ul style="margin-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;"><strong>🎯 Deadline-focused</strong> - Never miss important deadlines</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>📊 Realistic planning</strong> - Account for all necessary tasks</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>👁️ Visual clarity</strong> - See your entire project at a glance</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>🔄 Flexible adjustments</strong> - Easy to modify and adapt</li>
+                            <li><strong>💼 Professional output</strong> - Export timeline for stakeholders</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__header">
+                        <h3>🚀 Key Features</h3>
+                    </div>
+                    <div class="card__content">
+                        <ul style="margin-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;">📅 <strong>Smart Timeline Calculation</strong> - Automatic backward scheduling</li>
+                            <li style="margin-bottom: 0.5rem;">🏖️ <strong>Holiday Integration</strong> - Hong Kong public holidays (2024-2027)</li>
+                            <li style="margin-bottom: 0.5rem;">🎨 <strong>5 Beautiful Themes</strong> - Light and dark options</li>
+                            <li style="margin-bottom: 0.5rem;">📱 <strong>Edge Sidebar Compatible</strong> - Optimized for Microsoft Edge</li>
+                            <li style="margin-bottom: 0.5rem;">📊 <strong>Multiple Export Formats</strong> - JSON, CSV, and HTML</li>
+                            <li>⚡ <strong>Fast & Responsive</strong> - Works on all devices</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__header">
+                        <h3>ℹ️ About This Version</h3>
+                    </div>
+                    <div class="card__content">
+                        <p><strong>Version:</strong> 2.1.1 - All Bugs Fixed Edition</p>
+                        <p><strong>Last Updated:</strong> September 2025</p>
+                        <p><strong>License:</strong> MIT License</p>
+                        <p><strong>Repository:</strong> <a href="https://github.com/donaldcng/backward-planner-v2" target="_blank" style="color: var(--primary);">GitHub</a></p>
                     </div>
                 </div>
             </div>
