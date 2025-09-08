@@ -3,19 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backward Planner - Project Planning Made Simple</title>
+    <title>📅 Backward Planner</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <!-- PWA & Edge Sidebar Support -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    
+    <!-- Edge Sidebar Optimizations -->
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="format-detection" content="telephone=no">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav" role="navigation" aria-label="Main navigation">
         <div class="nav__container">
             <div class="nav__brand">
-                <h1 class="nav__title">📅 Backward Planner</h1>
+                <h1 class="nav__title">📅 Planner</h1>
             </div>
             <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
                 <span class="nav__toggle-bar"></span>
@@ -104,16 +116,20 @@
                                 <p>Tasks are scheduled backward from your deadline. Drag to reorder after generating timeline.</p>
                             </div>
                             <div class="timeline-actions">
-                                <button class="btn btn--outline" id="clear-all">Clear All</button>
-                                <button class="btn btn--outline" id="import-btn">Import Plan</button>
-                                <button class="btn btn--secondary" id="export-btn">Export Plan</button>
+                                <button class="btn btn--outline btn--small" id="clear-all">Clear All</button>
+                                <button class="btn btn--outline btn--small" id="import-btn">Import</button>
+                                <div class="export-group">
+                                    <button class="btn btn--secondary btn--small" id="export-btn">JSON</button>
+                                    <button class="btn btn--secondary btn--small" id="export-csv">CSV</button>
+                                    <button class="btn btn--secondary btn--small" id="export-pdf">HTML</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="card__content">
                         <div class="timeline-controls">
                             <button class="btn btn--primary" id="generate-timeline">Generate Timeline</button>
-                            <button class="btn btn--secondary" id="load-sample">Load Sample Project</button>
+                            <button class="btn btn--outline" id="load-sample">Load Sample Project</button>
                         </div>
                         
                         <div class="table-container">
@@ -121,12 +137,12 @@
                                 <thead>
                                     <tr>
                                         <th>📋 Task</th>
-                                        <th>📅 Start Date</th>
-                                        <th>📅 Start Day</th>
+                                        <th class="hide-mobile">📅 Start Date</th>
+                                        <th class="hide-mobile">📅 Start Day</th>
                                         <th>🏁 End Date</th>
-                                        <th>🏁 End Day</th>
+                                        <th class="hide-mobile">🏁 End Day</th>
                                         <th>⏱️ Duration</th>
-                                        <th>🔧 Actions</th>
+                                        <th class="hide-mobile">🔧 Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="plan-body">
@@ -154,7 +170,7 @@
                     <p>Customize your planning experience</p>
                 </div>
 
-                <!-- Theme Settings - UPDATED FOR 5 THEMES -->
+                <!-- Theme Settings -->
                 <div class="card">
                     <div class="card__header">
                         <h3>🎨 Color Theme</h3>
@@ -305,13 +321,13 @@
                         <div class="feature-grid">
                             <div class="feature-item">
                                 <div class="feature-icon">📅</div>
-                                <h4>Smart Backward Timeline Calculation</h4>
+                                <h4>Smart Timeline Calculation</h4>
                                 <p>Automatically calculates start dates working backward from your deadline</p>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon">🏖️</div>
-                                <h4>Hong Kong Holiday Integration</h4>
-                                <p>Automatically skips public holidays (2024-2027) in timeline calculations</p>
+                                <h4>Holiday Integration</h4>
+                                <p>Automatically skips Hong Kong public holidays (2024-2027) in calculations</p>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon">🔄</div>
@@ -320,8 +336,8 @@
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon">📱</div>
-                                <h4>Mobile-First Responsive Design</h4>
-                                <p>Works perfectly on smartphones, tablets, and desktop computers</p>
+                                <h4>Edge Sidebar Compatible</h4>
+                                <p>Optimized for Microsoft Edge sidebar and mobile devices</p>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon">🎨</div>
@@ -329,65 +345,9 @@
                                 <p>3 light themes and 2 dark themes for personalization</p>
                             </div>
                             <div class="feature-item">
-                                <div class="feature-icon">💾</div>
-                                <h4>Import/Export Projects</h4>
-                                <p>Save and share your project plans in JSON format</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">♿</div>
-                                <h4>Accessibility Features</h4>
-                                <p>Full keyboard navigation and screen reader support</p>
-                            </div>
-                            <div class="feature-item">
-                                <div class="feature-icon">⚡</div>
-                                <h4>Fast & Offline Capable</h4>
-                                <p>Works without internet connection once loaded</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- How to Use -->
-                <div class="card">
-                    <div class="card__header">
-                        <h3>📖 How to Use</h3>
-                    </div>
-                    <div class="card__content">
-                        <div class="steps">
-                            <div class="step">
-                                <div class="step__number">1</div>
-                                <div class="step__content">
-                                    <h4>Set Your Project Details</h4>
-                                    <p>Enter your project name, description, and most importantly, your deadline date.</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step__number">2</div>
-                                <div class="step__content">
-                                    <h4>Add Your Tasks</h4>
-                                    <p>Create tasks with descriptions and estimated duration in days. Add as many as needed.</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step__number">3</div>
-                                <div class="step__content">
-                                    <h4>Generate Timeline</h4>
-                                    <p>Click "Generate Timeline" to see your backward-calculated project schedule.</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step__number">4</div>
-                                <div class="step__content">
-                                    <h4>Reorder & Adjust</h4>
-                                    <p>Drag and drop tasks to reorder them. The timeline will automatically recalculate.</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step__number">5</div>
-                                <div class="step__content">
-                                    <h4>Export Your Plan</h4>
-                                    <p>Save your completed project plan as a JSON file to share or backup.</p>
-                                </div>
+                                <div class="feature-icon">📊</div>
+                                <h4>Multiple Export Formats</h4>
+                                <p>Export as JSON, CSV, or HTML for different use cases</p>
                             </div>
                         </div>
                     </div>
@@ -400,7 +360,7 @@
                     </div>
                     <div class="card__content">
                         <div class="about-info">
-                            <p><strong>Version:</strong> 2.0.0 Enhanced Edition</p>
+                            <p><strong>Version:</strong> 2.1.0 Edge Sidebar Edition</p>
                             <p><strong>Last Updated:</strong> September 2025</p>
                             <p><strong>License:</strong> MIT License</p>
                             <p><strong>Repository:</strong> <a href="https://github.com/donaldcng/backward-planner-v2" target="_blank" rel="noopener">GitHub</a></p>
@@ -411,15 +371,10 @@
                             <div class="tech-tags">
                                 <span class="tech-tag">HTML5</span>
                                 <span class="tech-tag">CSS3</span>
-                                <span class="tech-tag">Vanilla JavaScript</span>
+                                <span class="tech-tag">JavaScript</span>
                                 <span class="tech-tag">SortableJS</span>
-                                <span class="tech-tag">GitHub Pages</span>
+                                <span class="tech-tag">PWA</span>
                             </div>
-                        </div>
-
-                        <div class="contact-info">
-                            <h4>📞 Need Help?</h4>
-                            <p>If you encounter issues or have suggestions, please open an issue on our GitHub repository. We're here to help!</p>
                         </div>
                     </div>
                 </div>

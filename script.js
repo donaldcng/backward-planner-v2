@@ -1,11 +1,10 @@
 // ==========================================================================
-// Enhanced Backward Planner - Complete JavaScript Application (Bug Fixes v2)
-// All Critical Bugs Fixed
+// Enhanced Backward Planner - Complete JavaScript (Edge & Sidebar Compatible)
+// All Bugs Fixed + Edge Sidebar Support
 // ==========================================================================
 
 // Application State
 const state = {
-  // Original functionality preserved
   deadline: null,
   tasks: [],
   dateFormat: 'yyyy-MM-dd',
@@ -13,56 +12,52 @@ const state = {
   holidays: [],
   holidaySet: new Set(),
   
-  // New enhancements
   currentTheme: localStorage.getItem('backward-planner-theme') || 'classic-blue',
   currentFontSize: localStorage.getItem('backward-planner-font-size') || 'medium',
   currentPage: 'planning',
   projectName: '',
   projectDescription: '',
   
-  // UI state
   isGeneratingTimeline: false,
   sortableInstance: null,
-  editingTaskIndex: -1
+  editingTaskIndex: -1,
+  
+  // Edge sidebar detection
+  isEdgeSidebar: false
 };
 
 // DOM References
 const refs = {
-  // Navigation
   navToggle: document.getElementById('navToggle'),
   navMenu: document.getElementById('navMenu'),
   navLinks: document.querySelectorAll('.nav__link'),
   
-  // Pages
   pages: document.querySelectorAll('.page'),
   
-  // Project Setup
   projectNameInput: document.getElementById('project-name'),
   projectDescriptionInput: document.getElementById('project-description'),
   deadlineInput: document.getElementById('deadline'),
   setDeadlineBtn: document.getElementById('set-deadline'),
   deadlineDisplay: document.getElementById('deadline-display'),
   
-  // Tasks
   taskSection: document.getElementById('task-section'),
   taskNameInput: document.getElementById('task-name'),
   taskDurationInput: document.getElementById('task-duration'),
   addTaskBtn: document.getElementById('add-task'),
   
-  // Timeline
   generateTimelineBtn: document.getElementById('generate-timeline'),
   loadSampleBtn: document.getElementById('load-sample'),
   planTable: document.getElementById('plan-table'),
   planBody: document.getElementById('plan-body'),
   noTasksMsg: document.getElementById('no-tasks-msg'),
   
-  // Actions
   clearAllBtn: document.getElementById('clear-all'),
   exportBtn: document.getElementById('export-btn'),
+  exportCsvBtn: document.getElementById('export-csv'),
+  exportPdfBtn: document.getElementById('export-pdf'),
   importBtn: document.getElementById('import-btn'),
   importFile: document.getElementById('import-file'),
   
-  // Settings
   themeSelector: document.getElementById('theme-selector'),
   fontSizeSelector: document.getElementById('font-size-selector'),
   dateFormatSelect: document.getElementById('date-format'),
@@ -71,7 +66,6 @@ const refs = {
   resetSettingsBtn: document.getElementById('reset-settings'),
   saveSettingsBtn: document.getElementById('save-settings'),
   
-  // Modal
   editTaskModal: document.getElementById('edit-task-modal'),
   editTaskForm: document.getElementById('edit-task-form'),
   editTaskNameInput: document.getElementById('edit-task-name'),
@@ -80,12 +74,11 @@ const refs = {
   cancelEditBtn: document.getElementById('cancel-edit'),
   saveEditBtn: document.getElementById('save-edit'),
   
-  // Loading & Toast
   loading: document.getElementById('loading'),
   toastContainer: document.getElementById('toast-container')
 };
 
-// Hong Kong Holidays Data - Updated for 2024-2027 range
+// Hong Kong Holidays Data (2024-2027)
 const holidaysData = {
   "vcalendar": [{
     "vevent": [
@@ -174,8 +167,9 @@ const holidaysData = {
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
-  console.log('Initializing Enhanced Backward Planner v2.0...');
+  console.log('Initializing Enhanced Backward Planner for Edge Sidebar...');
   
+  detectEdgeSidebar();
   loadHolidays();
   bindEventListeners();
   applyTheme(state.currentTheme);
@@ -187,20 +181,58 @@ function initApp() {
 }
 
 // ==========================================================================
-// Event Listeners
+// Edge Sidebar Detection & Optimization
+// ==========================================================================
+
+function detectEdgeSidebar() {
+  // Detect Edge sidebar by checking viewport width and user agent
+  const isEdge = navigator.userAgent.includes('Edg/');
+  const isNarrow = window.innerWidth <= 400;
+  const isVeryNarrow = window.innerWidth <= 320;
+  
+  state.isEdgeSidebar = isEdge && (isNarrow || isVeryNarrow);
+  
+  if (state.isEdgeSidebar) {
+    document.body.classList.add('edge-sidebar');
+    console.log('Edge sidebar detected, applying optimizations...');
+  }
+  
+  // Listen for resize events
+  window.addEventListener('resize', () => {
+    const wasEdgeSidebar = state.isEdgeSidebar;
+    detectEdgeSidebar();
+    
+    if (wasEdgeSidebar !== state.isEdgeSidebar) {
+      if (state.isEdgeSidebar) {
+        document.body.classList.add('edge-sidebar');
+      } else {
+        document.body.classList.remove('edge-sidebar');
+      }
+    }
+  });
+}
+
+// ==========================================================================
+// Event Listeners - FIXED for Edge Compatibility
 // ==========================================================================
 
 function bindEventListeners() {
   // Navigation
-  if (refs.navToggle) refs.navToggle.addEventListener('click', toggleMobileMenu);
+  if (refs.navToggle) {
+    refs.navToggle.addEventListener('click', toggleMobileMenu);
+    refs.navToggle.addEventListener('touchend', toggleMobileMenu);
+  }
+  
   refs.navLinks.forEach(link => {
     link.addEventListener('click', handleNavigation);
+    link.addEventListener('touchend', handleNavigation);
   });
   
   // Project Setup
   if (refs.setDeadlineBtn) refs.setDeadlineBtn.addEventListener('click', handleSetDeadline);
   if (refs.projectNameInput) refs.projectNameInput.addEventListener('input', handleProjectNameChange);
   if (refs.projectDescriptionInput) refs.projectDescriptionInput.addEventListener('input', handleProjectDescriptionChange);
+  if (refs.deadlineInput) refs.deadlineInput.addEventListener('change', handleDeadlineInputChange); // NEW: Handle deadline changes
   
   // Tasks
   if (refs.addTaskBtn) refs.addTaskBtn.addEventListener('click', handleAddTask);
@@ -216,16 +248,33 @@ function bindEventListeners() {
   
   // Actions
   if (refs.clearAllBtn) refs.clearAllBtn.addEventListener('click', handleClearAll);
-  if (refs.exportBtn) refs.exportBtn.addEventListener('click', handleExport);
+  if (refs.exportBtn) refs.exportBtn.addEventListener('click', handleExportJSON);
+  if (refs.exportCsvBtn) refs.exportCsvBtn.addEventListener('click', handleExportCSV);
+  if (refs.exportPdfBtn) refs.exportPdfBtn.addEventListener('click', handleExportPDF);
   if (refs.importBtn) refs.importBtn.addEventListener('click', () => refs.importFile?.click());
   if (refs.importFile) refs.importFile.addEventListener('change', handleImport);
   
-  // Settings - Fixed event handlers
-  if (refs.themeSelector) refs.themeSelector.addEventListener('click', handleThemeChange);
-  if (refs.fontSizeSelector) {
-    refs.fontSizeSelector.addEventListener('change', handleFontSizeChange);
-    refs.fontSizeSelector.addEventListener('click', handleFontSizeChange);
+  // Settings - FIXED for Edge
+  if (refs.themeSelector) {
+    // Use event delegation for better Edge compatibility
+    refs.themeSelector.addEventListener('click', handleThemeChangeFixed);
+    refs.themeSelector.addEventListener('touchend', handleThemeChangeFixed);
   }
+  
+  if (refs.fontSizeSelector) {
+    // Multiple event listeners for font size - FIXED
+    refs.fontSizeSelector.addEventListener('change', handleFontSizeChangeFixed);
+    refs.fontSizeSelector.addEventListener('click', handleFontSizeChangeFixed);
+    refs.fontSizeSelector.addEventListener('touchend', handleFontSizeChangeFixed);
+    
+    // Also listen to individual radio buttons
+    const radioButtons = refs.fontSizeSelector.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => {
+      radio.addEventListener('change', handleFontSizeChangeFixed);
+      radio.addEventListener('click', handleFontSizeChangeFixed);
+    });
+  }
+  
   if (refs.dateFormatSelect) refs.dateFormatSelect.addEventListener('change', handleDateFormatChange);
   if (refs.excludeHolidaysCheckbox) refs.excludeHolidaysCheckbox.addEventListener('change', handleHolidayToggle);
   if (refs.resetSettingsBtn) refs.resetSettingsBtn.addEventListener('click', resetSettings);
@@ -259,7 +308,6 @@ function handleNavigation(e) {
   const page = e.currentTarget.dataset.page;
   if (page) {
     showPage(page);
-    // Close mobile menu
     refs.navMenu?.classList.remove('nav__menu--open');
     refs.navToggle?.setAttribute('aria-expanded', 'false');
   }
@@ -268,12 +316,10 @@ function handleNavigation(e) {
 function showPage(pageId) {
   state.currentPage = pageId;
   
-  // Update pages
   refs.pages.forEach(page => {
     page.classList.toggle('page--active', page.id === pageId + 'Page');
   });
   
-  // Update navigation
   refs.navLinks.forEach(link => {
     const isActive = link.dataset.page === pageId;
     link.classList.toggle('nav__link--active', isActive);
@@ -286,7 +332,7 @@ function showPage(pageId) {
 }
 
 // ==========================================================================
-// Project Management
+// Project Management - FIXED Import + Deadline Change Bug
 // ==========================================================================
 
 function handleProjectNameChange(e) {
@@ -313,7 +359,34 @@ function handleSetDeadline() {
   state.deadline = deadline;
   updateDeadlineDisplay();
   if (refs.taskSection) refs.taskSection.style.display = 'block';
+  
+  // FIXED: Clear timeline when deadline changes
+  clearExistingTimeline();
+  
   showToast('Deadline set successfully!', 'success');
+}
+
+// NEW: Handle deadline input changes (for import + deadline change bug)
+function handleDeadlineInputChange() {
+  if (refs.deadlineInput?.value && state.tasks.length > 0) {
+    // Clear existing timeline when deadline changes after import
+    clearExistingTimeline();
+    showToast('Deadline changed. Click "Generate Timeline" to recalculate.', 'info');
+  }
+}
+
+function clearExistingTimeline() {
+  // Clear timeline data from tasks
+  state.tasks.forEach(task => {
+    task.startDate = null;
+    task.endDate = null;
+  });
+  
+  // Reset generation state
+  state.isGeneratingTimeline = false;
+  
+  // Update UI to show tasks need timeline generation
+  updateUI();
 }
 
 function updateDeadlineDisplay() {
@@ -324,7 +397,7 @@ function updateDeadlineDisplay() {
 }
 
 // ==========================================================================
-// Task Management - FIXED BUG #3
+// Task Management
 // ==========================================================================
 
 function handleAddTask() {
@@ -350,7 +423,6 @@ function handleAddTask() {
     return;
   }
   
-  // Add task to state
   const newTask = {
     id: Date.now(),
     name: name,
@@ -363,11 +435,9 @@ function handleAddTask() {
   state.tasks.push(newTask);
   console.log('Task added, total tasks:', state.tasks.length);
   
-  // Clear inputs
   if (refs.taskNameInput) refs.taskNameInput.value = '';
   if (refs.taskDurationInput) refs.taskDurationInput.value = '';
   
-  // Update UI immediately to show task was added
   updateTaskList();
   updateUI();
   
@@ -376,7 +446,6 @@ function handleAddTask() {
 }
 
 function updateTaskList() {
-  // Show tasks in simple list format before timeline is generated
   if (!refs.noTasksMsg) return;
   
   if (state.tasks.length === 0) {
@@ -416,13 +485,11 @@ function saveTaskEdit() {
     return;
   }
   
-  // Update task
   const task = state.tasks[state.editingTaskIndex];
   task.name = name;
   task.duration = duration;
   task.description = description;
   
-  // Recalculate if timeline exists
   if (state.tasks[0]?.startDate) {
     calculateTimeline();
   }
@@ -439,7 +506,6 @@ function deleteTask(index) {
   if (confirm(`Delete task "${task.name}"?`)) {
     state.tasks.splice(index, 1);
     
-    // Recalculate if timeline exists
     if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
       calculateTimeline();
     }
@@ -454,7 +520,7 @@ function closeEditModal() {
 }
 
 // ==========================================================================
-// Timeline Calculation - FIXED BUG #4
+// Timeline Calculation
 // ==========================================================================
 
 function calculateTimeline() {
@@ -469,19 +535,14 @@ function calculateTimeline() {
     let currentEndDate = getValidEndDate(state.deadline);
     console.log('Starting from end date:', currentEndDate);
     
-    // Process tasks in reverse order (backward planning)
     for (let i = state.tasks.length - 1; i >= 0; i--) {
       const task = state.tasks[i];
       
-      // Set task end date
       task.endDate = new Date(currentEndDate);
-      
-      // Calculate start date - FIXED: Ensure proper date handling
       task.startDate = findStartDate(currentEndDate, task.duration);
       
       console.log(`Task ${task.name}: ${formatDate(task.startDate)} to ${formatDate(task.endDate)} (${task.duration} days)`);
       
-      // Next task ends when current task starts (minus 1 working day)
       if (i > 0) {
         currentEndDate = findPreviousWorkingDay(task.startDate);
       }
@@ -499,7 +560,7 @@ function calculateTimeline() {
 function getValidEndDate(date) {
   let d = new Date(date);
   let attempts = 0;
-  const maxAttempts = 30; // Prevent infinite loops
+  const maxAttempts = 30;
   
   while ((isWeekend(d) || isExcludedHoliday(d)) && attempts < maxAttempts) {
     d = addDays(d, -1);
@@ -516,10 +577,10 @@ function getValidEndDate(date) {
 function findStartDate(endDate, duration) {
   if (duration <= 0) return new Date(endDate);
   
-  let daysLeft = duration - 1; // Duration includes the end date
+  let daysLeft = duration - 1;
   let d = new Date(endDate);
   let attempts = 0;
-  const maxAttempts = duration * 7; // Allow for weekends and holidays
+  const maxAttempts = duration * 7;
   
   while (daysLeft > 0 && attempts < maxAttempts) {
     d = addDays(d, -1);
@@ -566,14 +627,13 @@ function handleGenerateTimeline() {
   
   if (state.isGeneratingTimeline) {
     console.log('Timeline generation already in progress');
-    return; // Prevent multiple clicks
+    return;
   }
   
   console.log('Starting timeline generation...');
   state.isGeneratingTimeline = true;
   showLoading('Calculating timeline...');
   
-  // Use shorter delay to reduce hanging perception
   setTimeout(() => {
     try {
       const success = calculateTimeline();
@@ -594,38 +654,36 @@ function handleGenerateTimeline() {
 }
 
 // ==========================================================================
-// Holidays Management (Preserved Original) - UPDATED RANGE
+// Holidays Management
 // ==========================================================================
 
 function loadHolidays() {
   const vevents = holidaysData.vcalendar[0].vevent;
-  const currentYear = new Date().getFullYear(); // 2025
-  const startYear = currentYear - 1; // 2024
-  const endYear = currentYear + 2; // 2027
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 1;
+  const endYear = currentYear + 2;
   
   state.holidays = vevents
     .map(evt => {
       const raw = evt.dtstart[0];
       const year = parseInt(raw.slice(0, 4));
       
-      // Only include holidays from 2024-2027
       if (year < startYear || year > endYear) {
         return null;
       }
       
       const d = new Date(
-        year, // year
-        parseInt(raw.slice(4, 6)) - 1, // month (0-based)
-        parseInt(raw.slice(6, 8)) // day
+        year,
+        parseInt(raw.slice(4, 6)) - 1,
+        parseInt(raw.slice(6, 8))
       );
       return { 
         date: normalizeDate(d), 
         summary: evt.summary 
       };
     })
-    .filter(holiday => holiday !== null); // Remove null entries
+    .filter(holiday => holiday !== null);
   
-  // Build holiday set for fast lookup
   state.holidaySet.clear();
   state.holidays.forEach(h => state.holidaySet.add(+h.date));
   
@@ -651,7 +709,7 @@ function renderHolidays() {
 
 function isWeekend(date) {
   const day = date.getDay();
-  return day === 0 || day === 6; // Sunday or Saturday
+  return day === 0 || day === 6;
 }
 
 function isExcludedHoliday(date) {
@@ -661,7 +719,6 @@ function isExcludedHoliday(date) {
 function handleHolidayToggle() {
   state.skipHolidays = refs.excludeHolidaysCheckbox?.checked ?? true;
   
-  // Recalculate timeline if it exists
   if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
     calculateTimeline();
     updateUI();
@@ -674,18 +731,16 @@ function handleHolidayToggle() {
 }
 
 // ==========================================================================
-// Drag and Drop (New Enhancement)
+// Drag and Drop
 // ==========================================================================
 
 function initDragAndDrop() {
   if (!refs.planBody || typeof Sortable === 'undefined') return;
   
-  // Destroy existing instance
   if (state.sortableInstance) {
     state.sortableInstance.destroy();
   }
   
-  // Create new sortable instance
   try {
     state.sortableInstance = Sortable.create(refs.planBody, {
       animation: 150,
@@ -694,13 +749,11 @@ function initDragAndDrop() {
       dragClass: 'sortable-drag',
       handle: 'tr',
       onEnd: function(evt) {
-        // Reorder tasks array to match new DOM order
         const newTasks = [];
         const rows = refs.planBody.querySelectorAll('tr');
         
         rows.forEach(row => {
           const taskName = row.cells[0]?.textContent?.trim();
-          // Extract just the task name (before any line breaks)
           const cleanTaskName = taskName?.split('\n')[0] || '';
           const task = state.tasks.find(t => t.name === cleanTaskName);
           if (task) {
@@ -722,7 +775,7 @@ function initDragAndDrop() {
 }
 
 // ==========================================================================
-// UI Rendering - FIXED BUG #3
+// UI Rendering
 // ==========================================================================
 
 function updateUI() {
@@ -742,7 +795,6 @@ function renderTasks() {
   });
   
   if (hasTasksWithTimeline) {
-    // Show full timeline table
     refs.planTable.style.display = 'table';
     refs.noTasksMsg.style.display = 'none';
     
@@ -772,7 +824,6 @@ function renderTasks() {
       refs.planBody.appendChild(row);
     });
   } else {
-    // Show task count or empty message
     refs.planTable.style.display = 'none';
     refs.noTasksMsg.style.display = 'block';
     
@@ -806,17 +857,14 @@ function updateButtons() {
       'Calculating...' : 'Generate Timeline';
   }
   
-  if (refs.exportBtn) {
-    refs.exportBtn.disabled = !hasTimeline;
-  }
-  
-  if (refs.clearAllBtn) {
-    refs.clearAllBtn.disabled = !hasTasks;
-  }
+  if (refs.exportBtn) refs.exportBtn.disabled = !hasTimeline;
+  if (refs.exportCsvBtn) refs.exportCsvBtn.disabled = !hasTimeline;
+  if (refs.exportPdfBtn) refs.exportPdfBtn.disabled = !hasTimeline;
+  if (refs.clearAllBtn) refs.clearAllBtn.disabled = !hasTasks;
 }
 
 // ==========================================================================
-// Theme Management - FIXED BUG #1 - New 5 Theme System
+// Theme Management - FIXED for Edge
 // ==========================================================================
 
 const themes = [
@@ -830,7 +878,6 @@ const themes = [
 function applyTheme(themeId) {
   console.log('Applying theme:', themeId);
   
-  // Validate theme ID
   const theme = themes.find(t => t.id === themeId);
   if (!theme) {
     console.warn('Invalid theme ID, using default');
@@ -838,10 +885,15 @@ function applyTheme(themeId) {
   }
   
   state.currentTheme = themeId;
-  document.documentElement.setAttribute('data-theme', themeId);
+  
+  // Force theme application by removing and adding the attribute
+  document.documentElement.removeAttribute('data-theme');
+  setTimeout(() => {
+    document.documentElement.setAttribute('data-theme', themeId);
+  }, 10);
+  
   localStorage.setItem('backward-planner-theme', themeId);
   
-  // Update theme selector UI
   if (refs.themeSelector) {
     refs.themeSelector.querySelectorAll('.theme-option').forEach(option => {
       option.classList.toggle('active', option.dataset.theme === themeId);
@@ -851,11 +903,22 @@ function applyTheme(themeId) {
   console.log('Theme applied successfully:', themeId);
 }
 
-function handleThemeChange(e) {
-  const themeOption = e.target.closest('.theme-option');
+// FIXED: Theme change handler for Edge
+function handleThemeChangeFixed(e) {
+  e.preventDefault();
+  
+  let themeOption = null;
+  
+  if (e.target.classList.contains('theme-option')) {
+    themeOption = e.target;
+  } else {
+    themeOption = e.target.closest('.theme-option');
+  }
+  
   if (themeOption) {
     const themeId = themeOption.dataset.theme;
-    if (themeId) {
+    if (themeId && themes.find(t => t.id === themeId)) {
+      console.log('Theme selected:', themeId);
       applyTheme(themeId);
       const theme = themes.find(t => t.id === themeId);
       showToast(`Theme changed to ${theme?.name || themeId}`, 'success');
@@ -864,7 +927,7 @@ function handleThemeChange(e) {
 }
 
 // ==========================================================================
-// Font Size Management - FIXED BUG #2
+// Font Size Management - FIXED for Edge
 // ==========================================================================
 
 const fontSizes = [
@@ -876,7 +939,6 @@ const fontSizes = [
 function applyFontSize(fontSizeId) {
   console.log('Applying font size:', fontSizeId);
   
-  // Validate font size ID
   const fontSize = fontSizes.find(f => f.id === fontSizeId);
   if (!fontSize) {
     console.warn('Invalid font size ID, using default');
@@ -884,33 +946,53 @@ function applyFontSize(fontSizeId) {
   }
   
   state.currentFontSize = fontSizeId;
-  document.documentElement.setAttribute('data-font-size', fontSizeId);
+  
+  // Force font size application
+  document.documentElement.removeAttribute('data-font-size');
+  setTimeout(() => {
+    document.documentElement.setAttribute('data-font-size', fontSizeId);
+  }, 10);
+  
   localStorage.setItem('backward-planner-font-size', fontSizeId);
   
-  // Update font size selector UI
   if (refs.fontSizeSelector) {
     const radio = refs.fontSizeSelector.querySelector(`input[value="${fontSizeId}"]`);
-    if (radio) radio.checked = true;
+    if (radio) {
+      radio.checked = true;
+    }
+    
+    // Update visual selection
+    refs.fontSizeSelector.querySelectorAll('.font-option').forEach(option => {
+      const radioInOption = option.querySelector('input[type="radio"]');
+      option.classList.toggle('selected', radioInOption?.value === fontSizeId);
+    });
   }
   
   console.log('Font size applied successfully:', fontSizeId);
 }
 
-function handleFontSizeChange(e) {
-  // Handle both radio button changes and clicks
+// FIXED: Font size change handler for Edge
+function handleFontSizeChangeFixed(e) {
   let fontSizeId = null;
   
+  // Handle radio button change
   if (e.target.type === 'radio' && e.target.name === 'fontSize') {
     fontSizeId = e.target.value;
-  } else if (e.target.closest('.font-option')) {
-    const radio = e.target.closest('.font-option').querySelector('input[type="radio"]');
-    if (radio) {
-      radio.checked = true;
-      fontSizeId = radio.value;
+  }
+  // Handle clicking on label/option
+  else {
+    const fontOption = e.target.closest('.font-option');
+    if (fontOption) {
+      const radio = fontOption.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        fontSizeId = radio.value;
+      }
     }
   }
   
-  if (fontSizeId) {
+  if (fontSizeId && fontSizes.find(f => f.id === fontSizeId)) {
+    console.log('Font size selected:', fontSizeId);
     applyFontSize(fontSizeId);
     const fontSize = fontSizes.find(f => f.id === fontSizeId);
     showToast(`Font size changed to ${fontSize?.name || fontSizeId}`, 'success');
@@ -937,17 +1019,14 @@ function handleDateFormatChange() {
 
 function resetSettings() {
   if (confirm('Reset all settings to defaults?')) {
-    // Reset to defaults
     applyTheme('classic-blue');
     applyFontSize('medium');
     state.dateFormat = 'yyyy-MM-dd';
     state.skipHolidays = true;
     
-    // Update UI
     if (refs.dateFormatSelect) refs.dateFormatSelect.value = state.dateFormat;
     if (refs.excludeHolidaysCheckbox) refs.excludeHolidaysCheckbox.checked = state.skipHolidays;
     
-    // Recalculate timeline if it exists
     if (state.tasks.length > 0 && state.tasks[0]?.startDate) {
       calculateTimeline();
     }
@@ -959,15 +1038,14 @@ function resetSettings() {
 }
 
 function saveSettings() {
-  // Settings are automatically saved via localStorage
   showToast('Settings saved successfully!', 'success');
 }
 
 // ==========================================================================
-// Import/Export (Enhanced from Original)
+// Export Functions - ENHANCED with Multiple Formats
 // ==========================================================================
 
-function handleExport() {
+function handleExportJSON() {
   if (!state.deadline || state.tasks.length === 0) {
     showToast('Nothing to export. Please create a project first.', 'warning');
     return;
@@ -997,20 +1075,133 @@ function handleExport() {
     }
   };
   
-  const jsonString = JSON.stringify(exportData, null, 2);
-  const blob = new Blob([jsonString], { type: 'application/json' });
+  downloadFile(
+    JSON.stringify(exportData, null, 2),
+    `backward-planner-${formatDateForFilename(new Date())}.json`,
+    'application/json'
+  );
+  
+  showToast('Project exported as JSON successfully!', 'success');
+}
+
+function handleExportCSV() {
+  if (!state.tasks.length || !state.tasks[0]?.startDate) {
+    showToast('No timeline to export. Generate timeline first.', 'warning');
+    return;
+  }
+  
+  const csvHeaders = ['Task Name', 'Start Date', 'Start Day', 'End Date', 'End Day', 'Duration (days)', 'Description'];
+  const csvRows = state.tasks.map(task => [
+    `"${task.name.replace(/"/g, '""')}"`,
+    formatDate(task.startDate),
+    getWeekday(task.startDate),
+    formatDate(task.endDate),
+    getWeekday(task.endDate),
+    task.duration,
+    `"${(task.description || '').replace(/"/g, '""')}"`
+  ]);
+  
+  const csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+  
+  downloadFile(
+    csvContent,
+    `backward-planner-timeline-${formatDateForFilename(new Date())}.csv`,
+    'text/csv'
+  );
+  
+  showToast('Timeline exported as CSV successfully!', 'success');
+}
+
+function handleExportPDF() {
+  if (!state.tasks.length || !state.tasks[0]?.startDate) {
+    showToast('No timeline to export. Generate timeline first.', 'warning');
+    return;
+  }
+  
+  // Create a simple HTML table for PDF export
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Project Timeline - ${state.projectName || 'Backward Planner'}</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #2563eb; margin-bottom: 10px; }
+        .project-info { margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #e2e8f0; }
+        th { background-color: #f1f5f9; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        .footer { margin-top: 30px; font-size: 12px; color: #64748b; }
+      </style>
+    </head>
+    <body>
+      <h1>📅 ${state.projectName || 'Project Timeline'}</h1>
+      <div class="project-info">
+        <p><strong>Description:</strong> ${state.projectDescription || 'No description provided'}</p>
+        <p><strong>Deadline:</strong> ${formatDate(state.deadline)}</p>
+        <p><strong>Total Tasks:</strong> ${state.tasks.length}</p>
+        <p><strong>Generated:</strong> ${formatDate(new Date())}</p>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Task Name</th>
+            <th>Start Date</th>
+            <th>Start Day</th>
+            <th>End Date</th>
+            <th>End Day</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.tasks.map(task => `
+            <tr>
+              <td><strong>${escapeHtml(task.name)}</strong>${task.description ? `<br><small>${escapeHtml(task.description)}</small>` : ''}</td>
+              <td>${formatDate(task.startDate)}</td>
+              <td>${getWeekday(task.startDate)}</td>
+              <td>${formatDate(task.endDate)}</td>
+              <td>${getWeekday(task.endDate)}</td>
+              <td>${task.duration} day${task.duration !== 1 ? 's' : ''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      
+      <div class="footer">
+        <p>Generated by Backward Planner - https://github.com/donaldcng/backward-planner-v2</p>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // For PDF, we'll create an HTML file that can be printed to PDF
+  downloadFile(
+    htmlContent,
+    `backward-planner-timeline-${formatDateForFilename(new Date())}.html`,
+    'text/html'
+  );
+  
+  showToast('Timeline exported as HTML successfully! Open the file and print to PDF.', 'info');
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = `backward-planner-${formatDateForFilename(new Date())}.json`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
-  showToast('Project exported successfully!', 'success');
 }
+
+// ==========================================================================
+// Import/Export
+// ==========================================================================
 
 function handleImport(e) {
   const file = e.target.files[0];
@@ -1028,49 +1219,36 @@ function handleImport(e) {
   };
   reader.readAsText(file);
   
-  // Clear file input
   e.target.value = '';
 }
 
 function importProject(data) {
   try {
-    // Validate data structure
     if (!data || !data.project || !Array.isArray(data.tasks)) {
       throw new Error('Invalid project file format');
     }
     
-    // Import project details
     state.projectName = data.project.name || '';
     state.projectDescription = data.project.description || '';
     state.deadline = new Date(data.project.deadline);
     
-    // Import tasks - Clear start/end dates to force recalculation
+    // FIXED: Clear timeline data to force recalculation
     state.tasks = data.tasks.map(task => ({
       id: task.id || Date.now() + Math.random(),
       name: task.name || 'Unnamed Task',
       description: task.description || '',
       duration: parseInt(task.duration) || 1,
-      startDate: null, // Clear dates to force recalculation
+      startDate: null, // Force recalculation
       endDate: null
     }));
     
-    // Import settings if available
     if (data.settings) {
-      if (data.settings.dateFormat) {
-        state.dateFormat = data.settings.dateFormat;
-      }
-      if (typeof data.settings.skipHolidays === 'boolean') {
-        state.skipHolidays = data.settings.skipHolidays;
-      }
-      if (data.settings.theme) {
-        applyTheme(data.settings.theme);
-      }
-      if (data.settings.fontSize) {
-        applyFontSize(data.settings.fontSize);
-      }
+      if (data.settings.dateFormat) state.dateFormat = data.settings.dateFormat;
+      if (typeof data.settings.skipHolidays === 'boolean') state.skipHolidays = data.settings.skipHolidays;
+      if (data.settings.theme) applyTheme(data.settings.theme);
+      if (data.settings.fontSize) applyFontSize(data.settings.fontSize);
     }
     
-    // Update UI
     if (refs.projectNameInput) refs.projectNameInput.value = state.projectName;
     if (refs.projectDescriptionInput) refs.projectDescriptionInput.value = state.projectDescription;
     if (refs.deadlineInput) refs.deadlineInput.value = state.deadline.toISOString().split('T')[0];
@@ -1080,7 +1258,6 @@ function importProject(data) {
     updateDeadlineDisplay();
     if (refs.taskSection) refs.taskSection.style.display = 'block';
     
-    // Update UI to show tasks imported but timeline needs to be generated
     updateUI();
     
     showToast('Project imported successfully! Click "Generate Timeline" to see the schedule.', 'success');
@@ -1093,7 +1270,7 @@ function importProject(data) {
 }
 
 // ==========================================================================
-// Sample Project (New Enhancement)
+// Sample Project
 // ==========================================================================
 
 function loadSampleProject() {
@@ -1101,7 +1278,7 @@ function loadSampleProject() {
     project: {
       name: "Website Redesign Project",
       description: "Complete redesign of company website with new branding and mobile optimization",
-      deadline: new Date(Date.now() + (60 * 24 * 60 * 60 * 1000)).toISOString() // 60 days from now
+      deadline: new Date(Date.now() + (60 * 24 * 60 * 60 * 1000)).toISOString()
     },
     tasks: [
       { name: "Research & Discovery", duration: 5, description: "User research, competitor analysis, and requirements gathering" },
@@ -1149,12 +1326,10 @@ function handleClearAll() {
 }
 
 function handleKeyboard(e) {
-  // Escape key closes modals
   if (e.key === 'Escape') {
     closeEditModal();
   }
   
-  // Ctrl/Cmd + Enter in task input adds task
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && e.target === refs.taskNameInput) {
     handleAddTask();
   }
@@ -1209,7 +1384,7 @@ function escapeHtml(text) {
 }
 
 // ==========================================================================
-// Loading & Toast UI (New Enhancement)
+// Loading & Toast UI
 // ==========================================================================
 
 function showLoading(message = 'Loading...') {
@@ -1246,10 +1421,8 @@ function showToast(message, type = 'info') {
   
   refs.toastContainer.appendChild(toast);
   
-  // Trigger animation
   setTimeout(() => toast.classList.add('show'), 100);
   
-  // Auto remove
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => {
@@ -1259,9 +1432,8 @@ function showToast(message, type = 'info') {
 }
 
 // ==========================================================================
-// Global Functions (for inline event handlers)
+// Global Functions
 // ==========================================================================
 
-// Make functions available globally for onclick handlers
 window.editTask = editTask;
 window.deleteTask = deleteTask;

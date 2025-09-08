@@ -1,0 +1,98 @@
+{
+  "name": "Backward Planner - Project Timeline Tool",
+  "short_name": "Backward Planner",
+  "description": "Smart backward project planning tool with Edge sidebar support. Work from your deadline to create perfect timelines.",
+  "version": "2.1.0",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "scope": "./",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["productivity", "business", "utilities"],
+  "shortcuts": [
+    {
+      "name": "New Project",
+      "short_name": "New Project",
+      "description": "Start a new project timeline",
+      "url": "./?action=new",
+      "icons": [
+        {
+          "src": "favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Customize themes and preferences",
+      "url": "./?page=settings",
+      "icons": [
+        {
+          "src": "favicon-32x32.png",
+          "sizes": "32x32", 
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "src": "favicon-16x16.png",
+      "type": "image/png",
+      "sizes": "16x16",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon-32x32.png",
+      "type": "image/png",
+      "sizes": "32x32",
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "android-chrome-192x192.png",
+      "type": "image/png", 
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-desktop.png",
+      "type": "image/png",
+      "sizes": "1200x800",
+      "form_factor": "wide",
+      "label": "Desktop version showing project timeline"
+    },
+    {
+      "src": "screenshot-mobile.png", 
+      "type": "image/png",
+      "sizes": "375x667",
+      "form_factor": "narrow",
+      "label": "Mobile version optimized for Edge sidebar"
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 360
+  },
+  "launch_handler": {
+    "client_mode": "auto"
+  }
+}
